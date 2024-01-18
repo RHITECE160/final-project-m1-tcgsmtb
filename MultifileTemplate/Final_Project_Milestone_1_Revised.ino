@@ -27,10 +27,6 @@
 #include "SimpleRSLK.h"
 #include <Servo.h>
 
-
-
-
-
 //Clone variables, check if needed for Milestone 1
 
 int LeftYValue, RightYValue;
@@ -43,8 +39,6 @@ float error2;
 float motorSpeed;
 float distIN;
 const uint8_t lineColor = LIGHT_LINE;
-const uint16_t normalSpeed = 10;
-const uint16_t fastSpeed = 20;
 uint32_t linePos = getLinePosition();
 bool isCalibrationComplete = false;
 //End

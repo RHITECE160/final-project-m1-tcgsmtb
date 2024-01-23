@@ -37,6 +37,10 @@ void backward()
 void turnRight() 
 {
   enableMotor(LEFT_MOTOR);
+<<<<<<< Updated upstream
+=======
+  disableMotor(RIGHT_MOTOR);
+>>>>>>> Stashed changes
   setMotorDirection(LEFT_MOTOR, MOTOR_DIR_FORWARD);
   setMotorSpeed(BOTH_MOTORS, fastSpeed);
 }
@@ -44,6 +48,10 @@ void turnRight()
 void turnLeft() 
 {
   enableMotor(RIGHT_MOTOR);
+<<<<<<< Updated upstream
+=======
+  disableMotor(LEFT_MOTOR);
+>>>>>>> Stashed changes
   setMotorDirection(RIGHT_MOTOR, MOTOR_DIR_FORWARD);
   setMotorSpeed(BOTH_MOTORS, fastSpeed);
 }
@@ -58,4 +66,11 @@ void spin() {
 /* Stops robot forward: both motors disabled */
 void stop() {
     disableMotor(BOTH_MOTORS);
+}
+
+void gripper()
+{
+  myservo.write(0);
+  delay(2000);
+  myservo.write(90);
 }

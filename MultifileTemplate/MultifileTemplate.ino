@@ -7,15 +7,26 @@
 #define PS2_CMD 15  //P1.6 <-> orange wire
 #define PS2_SEL 34  //P2.3 <-> yellow wire (also called attention)
 #define PS2_CLK 35  //P6.7 <-> blue wire
+
+//Playstation joystick values
+#define PSS_RX 5
+#define PSS_RY 6
+#define PSS_LX 7
+#define PSS_LY 8
+
 #define PS2X_DEBUG
 #define PS2X_COM_DEBUG
 #define IDLE 0
 #define MANUAL 1
 #define Auto_Right 2
 #define Line_Follow 3
+<<<<<<< Updated upstream
+=======
+#define STR_HELPER(x) #x
+#define STR(x) STR_HELPER(x)
+>>>>>>> Stashed changes
 
 int STATE = IDLE;
-int LeftYValue, RightYValue;
 int pos = 0;
 float SpeedSettingR = 0;
 float SpeedSettingL = 0;
@@ -37,12 +48,12 @@ int error = 0;
 byte type = 0;
 byte vibrate = 0;
 
-void setup() 
-{
+void setup() {
   UART_SERIAL.begin(115200);
   myservo.attach(SRV_0);
   Serial.begin(57600);  //ZJE: changed from Arduino deafult of 9600
   setupRSLK();
+<<<<<<< Updated upstream
   delayMicroseconds(500 * 1000);  //added delay to give wireless ps2 module some time to startup, before configuring it
   error = 1;
   while (error) 
@@ -82,6 +93,15 @@ void setup()
       Serial.print("Wireless Sony DualShock Controller found ");
       break;
   }
+=======
+  pinMode(LP_LEFT_BTN, INPUT_PULLUP);
+
+
+  setupPlaystation();
+
+  
+  enableRXLEDFeedback(BLUE_LED); 
+>>>>>>> Stashed changes
 }
 
 
@@ -89,6 +109,7 @@ void setup()
 
 void loop() 
 {
+<<<<<<< Updated upstream
   ps2x.read_gamepad();
 
   if(ps2x.Button(PSB_PAD_UP)) 
@@ -155,3 +176,112 @@ void loop()
 
     enableMotor(BOTH_MOTORS);
   }
+=======
+  translatePlaystation();
+}
+
+
+
+void setupPlaystation() {
+  delayMicroseconds(500 * 1000);  //added delay to give wireless ps2 module some time to startup, before configuring it
+  error = 1;
+  while (error) {
+    error = ps2x.config_gamepad(PS2_CLK, PS2_CMD, PS2_SEL, PS2_DAT);
+    if (error == 0) {
+      Serial.print("Found Controller, configured successful ");
+    } else if (error == 1)
+      Serial.println("No controller found, check wiring, see readme.txt to enable debug. visit www.billporter.info for troubleshooting tips");
+
+    else if (error == 2)
+      Serial.println("Controller found but not accepting commands. see readme.txt to enable debug. Visit www.billporter.info for troubleshooting tips");
+
+    else if (error == 3)
+      Serial.println("Controller refusing to enter Pressures mode, may not support it. ");
+    delayMicroseconds(1000 * 1000);
+  }
+  setupWaitBtn(LP_LEFT_BTN);
+  setupLed(RED_LED);
+  setupLed(GREEN_LED);
+
+  Serial.print(ps2x.Analog(1), HEX);
+
+  type = ps2x.readType();
+  switch (type) {
+    case 0:
+      Serial.print("Unknown Controller type found ");
+      break;
+    case 1:
+      Serial.print("DualShock Controller found ");
+      break;
+    case 2:
+      Serial.print("GuitarHero Controller found ");
+      break;
+    case 3:
+      Serial.print("Wireless Sony DualShock Controller found ");
+      break;
+  }
+}
+
+
+void translatePlaystationAnalog(int yValR, int yValL)
+{
+  enableMotor(RIGHT_MOTOR)
+  if (yValR > 10) 
+  {
+    setMotorDirection(RIGHT_MOTOR, MOTOR_DIR_FORWARD);
+    setMotorSpeed(RIGHT_MOTOR, fastSpeed);
+  }
+  else if (yValR < -10)
+  {
+    setMotorDirection(RIGHT_MOTOR, MOTOR_DIR_BACKWARD);
+    setMotorSpeed(RIGHT_MOTOR, fastSpede);
+  }
+  else disableMotor(RIGHT_MOTOR);
+
+  enableMotor(LEFT_MOTOR)
+  if (yValL > 10) 
+  {
+    setMotorDirection(LEFT_MOTOR, MOTOR_DIR_FORWARD);
+    setMotorSpeed(LEFT_MOTOR, fastSpeed);
+  }
+  else if (yValL < -10)
+  {
+    setMotorDirection(LEFT_MOTOR, MOTOR_DIR_BACKWARD);
+    setMotorSpeed(LEFT_MOTOR, fastSpede);
+  }
+  else disableMotor(LEFT_MOTOR);
+}
+
+void translatePlaystation() {
+  ps2x.read_gamepad();
+
+  if (ps2x.Button(PSB_PAD_UP)) {
+    Serial.print("Go Forward");
+    forward();
+  }
+  if (ps2x.Button(PSB_PAD_RIGHT)) {
+    Serial.print("Turn Right");
+    turnRight();
+  }
+  if (ps2x.Button(PSB_PAD_LEFT)) {
+    Serial.print("Turn Left");
+    turnLeft();
+  }
+  if (ps2x.Button(PSB_PAD_DOWN)) {
+    Serial.print("Go Backward");
+    backward();
+  }
+  if (ps2x.Button(PSB_TRIANGLE)) {
+    Serial.print("Spin");
+    spin();
+  }
+  if (ps2x.Button(PSB_CROSS)) {
+    Serial.print("Stop");
+    stop();
+  }
+  if (ps2x.Button(PSB_CIRCLE)) {
+    Serial.print("Gripper");
+    gripper();
+  }
+}
+>>>>>>> Stashed changes

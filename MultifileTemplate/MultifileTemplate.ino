@@ -94,7 +94,7 @@ void loop()
   if(ps2x.Button(PSB_PAD_UP)) 
   {      
     Serial.print("Go Forward");
-    forward()
+    forward();
   }
   if(ps2x.Button(PSB_PAD_RIGHT))
   {

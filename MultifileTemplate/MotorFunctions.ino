@@ -36,14 +36,14 @@ void backward()
 
 void turnRight() 
 {
-  enableMotor(BOTH_MOTORS);
+  enableMotor(LEFT_MOTOR);
   setMotorDirection(LEFT_MOTOR, MOTOR_DIR_FORWARD);
   setMotorSpeed(BOTH_MOTORS, fastSpeed);
 }
 
 void turnLeft() 
 {
-  enableMotor(BOTH_MOTORS);
+  enableMotor(RIGHT_MOTOR);
   setMotorDirection(RIGHT_MOTOR, MOTOR_DIR_FORWARD);
   setMotorSpeed(BOTH_MOTORS, fastSpeed);
 }

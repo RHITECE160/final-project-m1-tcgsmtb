@@ -20,11 +20,8 @@
 #define MANUAL 1
 #define Auto_Right 2
 #define Line_Follow 3
-<<<<<<< Updated upstream
-=======
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
->>>>>>> Stashed changes
 
 int STATE = IDLE;
 int pos = 0;
@@ -53,7 +50,6 @@ void setup() {
   myservo.attach(SRV_0);
   Serial.begin(57600);  //ZJE: changed from Arduino deafult of 9600
   setupRSLK();
-<<<<<<< Updated upstream
   delayMicroseconds(500 * 1000);  //added delay to give wireless ps2 module some time to startup, before configuring it
   error = 1;
   while (error) 
@@ -93,7 +89,6 @@ void setup() {
       Serial.print("Wireless Sony DualShock Controller found ");
       break;
   }
-=======
   pinMode(LP_LEFT_BTN, INPUT_PULLUP);
 
 
@@ -101,7 +96,6 @@ void setup() {
 
   
   enableRXLEDFeedback(BLUE_LED); 
->>>>>>> Stashed changes
 }
 
 
@@ -109,7 +103,6 @@ void setup() {
 
 void loop() 
 {
-<<<<<<< Updated upstream
   ps2x.read_gamepad();
 
   if(ps2x.Button(PSB_PAD_UP)) 
@@ -176,7 +169,7 @@ void loop()
 
     enableMotor(BOTH_MOTORS);
   }
-=======
+
   translatePlaystation();
 }
 
@@ -284,4 +277,3 @@ void translatePlaystation() {
     gripper();
   }
 }
->>>>>>> Stashed changes

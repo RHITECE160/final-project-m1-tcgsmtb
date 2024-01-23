@@ -18,11 +18,41 @@
 */
 
 /* Moves robot forward: both motors forward same speed */
-void forward() {
-    enableMotor(BOTH_MOTORS);
-    setMotorDirection(LEFT_MOTOR, MOTOR_DIR_FORWARD);
-    setMotorDirection(RIGHT_MOTOR, MOTOR_DIR_FORWARD);
-    setMotorSpeed(BOTH_MOTORS, fastSpeed);
+void forward() 
+{
+  enableMotor(BOTH_MOTORS);
+  setMotorDirection(LEFT_MOTOR, MOTOR_DIR_FORWARD);
+  setMotorDirection(RIGHT_MOTOR, MOTOR_DIR_FORWARD);
+  setMotorSpeed(BOTH_MOTORS, fastSpeed);
+}
+
+void backward() 
+{
+  enableMotor(BOTH_MOTORS);
+  setMotorDirection(LEFT_MOTOR, MOTOR_DIR_BACKWARD);
+  setMotorDirection(RIGHT_MOTOR, MOTOR_DIR_BACKWARD);
+  setMotorSpeed(BOTH_MOTORS, fastSpeed);
+}
+
+void turnRight() 
+{
+  enableMotor(BOTH_MOTORS);
+  setMotorDirection(LEFT_MOTOR, MOTOR_DIR_FORWARD);
+  setMotorSpeed(BOTH_MOTORS, fastSpeed);
+}
+
+void turnLeft() 
+{
+  enableMotor(BOTH_MOTORS);
+  setMotorDirection(RIGHT_MOTOR, MOTOR_DIR_FORWARD);
+  setMotorSpeed(BOTH_MOTORS, fastSpeed);
+}
+
+void spin() {
+  enableMotor(BOTH_MOTORS);
+  setMotorDirection(LEFT_MOTOR, MOTOR_DIR_BACKWARD);
+  setMotorDirection(RIGHT_MOTOR, MOTOR_DIR_FORWARD);
+  setMotorSpeed(BOTH_MOTORS, fastSpeed);
 }
 
 /* Stops robot forward: both motors disabled */

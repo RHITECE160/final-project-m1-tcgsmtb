@@ -139,7 +139,8 @@ void setup() {
 
 
 
-void loop() {
+void loop() 
+{
   if (isCalibrationComplete == false) 
   {
     floorCalibration();
@@ -148,63 +149,94 @@ void loop() {
   sendIR.write(&IRmsg);
   Serial.print('.');
   uint32_t linePos = getLinePosition();
-  if (error == 1)
-    return;
-  if (type != 2) {
-    ps2x.read_gamepad();
-    switch (STATE) {
-      case IDLE:
-        ps2x.read_gamepad();
-        if (ps2x.Button(PSB_L1)) {
-          STATE = MANUAL;
-        }
-        break;
-      case MANUAL:
-        object = 0;
-        enableMotor(2);
-        ps2x.read_gamepad();
-        if (ps2x.Analog(PSS_LY) < 115 && ps2x.Analog(PSS_RY) < 115) {
-          Both_MotorsF();
-        } else if (ps2x.Analog(PSS_LY) > 135 && ps2x.Analog(PSS_RY) > 135) {
-          Both_MotorsB();
-        } else if (ps2x.Analog(PSS_LY) < 115) {
-          Left_MotorF();
-        } else if (ps2x.Analog(PSS_LY) > 135) {
-          Left_MotorB();
-        } else if (ps2x.Analog(PSS_RY) < 115) {
-          Right_MotorF();
-        } else if (ps2x.Analog(PSS_RY) > 135) {
-          Right_MotorB();
-        } else if (ps2x.NewButtonState()) {
-          Gripper();
-          if (ps2x.ButtonPressed(PSB_CROSS)) {
-            STATE = Auto_Right;
-          }
-          if (ps2x.Button(PSB_R1)) {
-            STATE = Line_Follow;
-          }
-        } else {
-          disableMotor(BOTH_MOTORS);
-        }
-        break;
-      case Auto_Right:
-        Auto_Turn_Right();
-        if (ps2x.Button(PSB_L1)) {
-          object = 0;
-          STATE = MANUAL;
-        }
-        break;
-      case Line_Follow:
-        Line_Following();
-        if (ps2x.Button(PSB_L1)) {
-          object == 0;
-          STATE = MANUAL;
-        }
-        break;
-    }
+
+  ps2x.read_gamepad();
+  if (ps2x.Button(PSB_PAD_UP))
+  {
+    forward();
+  }
+  else if (ps2x.Button(PSB_PAD_DOWN))
+  {
+    backward();
+  }
+  else if (ps2x.Button(PSB_PAD_RIGHT))
+  {
+    turnRight();
+  }
+  else if (ps2x.Button(PSB_PAD_LEFT))
+  {
+    turnLeft();
+  }
+  else if (ps2x.Button(PSB_TRIANGLE))
+  {
+    spin();
+  }
+  else if (ps2x.Button(PSB_CROSS))
+  {
+    stop();
+  }
+  else if (ps2x.Button(PSB_CIRCLE))
+  {
+    Gripper();
+  }
+
+  // if (error == 1)
+  //   return;
+  // if (type != 2) {
+  //   ps2x.read_gamepad();
+  //   switch (STATE) {
+  //     case IDLE:
+  //       ps2x.read_gamepad();
+  //       if (ps2x.Button(PSB_L1)) {
+  //         STATE = MANUAL;
+  //       }
+  //       break;
+  //     case MANUAL:
+  //       object = 0;
+  //       enableMotor(2);
+  //       ps2x.read_gamepad();
+  //       if (ps2x.Analog(PSS_LY) < 115 && ps2x.Analog(PSS_RY) < 115) {
+  //         Both_MotorsF();
+  //       } else if (ps2x.Analog(PSS_LY) > 135 && ps2x.Analog(PSS_RY) > 135) {
+  //         Both_MotorsB();
+  //       } else if (ps2x.Analog(PSS_LY) < 115) {
+  //         Left_MotorF();
+  //       } else if (ps2x.Analog(PSS_LY) > 135) {
+  //         Left_MotorB();
+  //       } else if (ps2x.Analog(PSS_RY) < 115) {
+  //         Right_MotorF();
+  //       } else if (ps2x.Analog(PSS_RY) > 135) {
+  //         Right_MotorB();
+  //       } else if (ps2x.NewButtonState()) {
+  //         Gripper();
+  //         if (ps2x.ButtonPressed(PSB_CROSS)) {
+  //           STATE = Auto_Right;
+  //         }
+  //         if (ps2x.Button(PSB_R1)) {
+  //           STATE = Line_Follow;
+  //         }
+  //       } else {
+  //         disableMotor(BOTH_MOTORS);
+  //       }
+  //       break;
+  //     case Auto_Right:
+  //       Auto_Turn_Right();
+  //       if (ps2x.Button(PSB_L1)) {
+  //         object = 0;
+  //         STATE = MANUAL;
+  //       }
+  //       break;
+  //     case Line_Follow:
+  //       Line_Following();
+  //       if (ps2x.Button(PSB_L1)) {
+  //         object == 0;
+  //         STATE = MANUAL;
+  //       }
+  //       break;
+  //   }
     delayMicroseconds(50 * 1000);
   }
-}
+
 
   void Auto_Turn_Right() {
     while (object <= 1) {

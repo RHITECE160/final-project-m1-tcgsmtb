@@ -18,48 +18,48 @@
 */
 
 /* Moves robot forward: both motors forward same speed */
-void forward() {
-  enableMotor(BOTH_MOTORS);
-  setMotorDirection(LEFT_MOTOR, MOTOR_DIR_FORWARD);
-  setMotorDirection(RIGHT_MOTOR, MOTOR_DIR_FORWARD);
-  setMotorSpeed(BOTH_MOTORS, fastSpeed);
-}
+// void forward() {
+//   enableMotor(BOTH_MOTORS);
+//   setMotorDirection(LEFT_MOTOR, MOTOR_DIR_FORWARD);
+//   setMotorDirection(RIGHT_MOTOR, MOTOR_DIR_FORWARD);
+//   setMotorSpeed(BOTH_MOTORS, fastSpeed);
+// }
 
-void backward() {
-  enableMotor(BOTH_MOTORS);
-  setMotorDirection(LEFT_MOTOR, MOTOR_DIR_BACKWARD);
-  setMotorDirection(RIGHT_MOTOR, MOTOR_DIR_BACKWARD);
-  setMotorSpeed(BOTH_MOTORS, fastSpeed);
-}
+// void backward() {
+//   enableMotor(BOTH_MOTORS);
+//   setMotorDirection(LEFT_MOTOR, MOTOR_DIR_BACKWARD);
+//   setMotorDirection(RIGHT_MOTOR, MOTOR_DIR_BACKWARD);
+//   setMotorSpeed(BOTH_MOTORS, fastSpeed);
+// }
 
-void turnRight() {
-  enableMotor(LEFT_MOTOR);
-  setMotorDirection(LEFT_MOTOR, MOTOR_DIR_FORWARD);
-  setMotorSpeed(BOTH_MOTORS, fastSpeed);
-}
+// void turnRight() {
+//   enableMotor(LEFT_MOTOR);
+//   setMotorDirection(LEFT_MOTOR, MOTOR_DIR_FORWARD);
+//   setMotorSpeed(BOTH_MOTORS, fastSpeed);
+// }
 
-void turnLeft() {
-  enableMotor(RIGHT_MOTOR);
-  setMotorDirection(RIGHT_MOTOR, MOTOR_DIR_FORWARD);
-  setMotorSpeed(BOTH_MOTORS, fastSpeed);
-}
+// void turnLeft() {
+//   enableMotor(RIGHT_MOTOR);
+//   setMotorDirection(RIGHT_MOTOR, MOTOR_DIR_FORWARD);
+//   setMotorSpeed(BOTH_MOTORS, fastSpeed);
+// }
 
-void spin() {
-  enableMotor(BOTH_MOTORS);
-  setMotorDirection(LEFT_MOTOR, MOTOR_DIR_BACKWARD);
-  setMotorDirection(RIGHT_MOTOR, MOTOR_DIR_FORWARD);
-  setMotorSpeed(BOTH_MOTORS, fastSpeed);
-}
+// void spin() {
+//   enableMotor(BOTH_MOTORS);
+//   setMotorDirection(LEFT_MOTOR, MOTOR_DIR_BACKWARD);
+//   setMotorDirection(RIGHT_MOTOR, MOTOR_DIR_FORWARD);
+//   setMotorSpeed(BOTH_MOTORS, fastSpeed);
+// }
 
-/* Stops robot forward: both motors disabled */
-void stop() {
-  disableMotor(BOTH_MOTORS);
-}
+// /* Stops robot forward: both motors disabled */
+// void stop() {
+//   disableMotor(BOTH_MOTORS);
+// }
 
-void Gripper() {
-  if (ps2x.ButtonPressed(PSB_CIRCLE)) {
-    myservo.write(0);
-  } else if {
-    myservo.write(90);
-  }
-}
+// void Gripper() {
+//   if (ps2x.ButtonPressed(PSB_CIRCLE)) {
+//     myservo.write(0);
+//   } else if {
+//     myservo.write(90);
+//   }
+// }

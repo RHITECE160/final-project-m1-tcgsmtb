@@ -25,13 +25,13 @@
 #define Line_Follow 3
 
 int STATE = IDLE;
-int LeftYValue, RightYValue;
 int pos = 0;
 float SpeedSettingR = 0;
 float SpeedSettingL = 0;
 int stopDistance = 5;
 int object = 0;
 float error2;
+int LeftYValue, RightYValue;
 float distIN;
 float motorSpeed;
 const uint8_t lineColor = LIGHT_LINE;
@@ -140,7 +140,8 @@ void setup() {
 
 
 void loop() {
-  if (isCalibrationComplete == false) {
+  if (isCalibrationComplete == false) 
+  {
     floorCalibration();
     isCalibrationComplete = true;
   }
@@ -203,6 +204,7 @@ void loop() {
     }
     delayMicroseconds(50 * 1000);
   }
+}
 
   void Auto_Turn_Right() {
     while (object <= 1) {
@@ -296,3 +298,76 @@ void loop() {
 
     enableMotor(BOTH_MOTORS);
   }
+
+
+void Left_MotorF() {
+  setMotorDirection(LEFT_MOTOR, MOTOR_DIR_FORWARD);
+  LeftYValue = ps2x.Analog(PSS_LY);
+  LeftYValue = constrain(ps2x.Analog(PSS_LY), 0, 50);
+  SpeedSettingL = map(LeftYValue, 115, 0, 0, 50);
+  setMotorSpeed(LEFT_MOTOR, SpeedSettingL);
+  ps2x.read_gamepad();
+}
+
+void Right_MotorF() {
+  setMotorDirection(RIGHT_MOTOR, MOTOR_DIR_FORWARD);
+  RightYValue = ps2x.Analog(PSS_RY);
+  RightYValue = constrain(ps2x.Analog(PSS_RY), 0, 50);
+  SpeedSettingR = map(RightYValue, 115, 0, 0, 50);
+  setMotorSpeed(RIGHT_MOTOR, SpeedSettingR);
+  ps2x.read_gamepad();
+}
+
+void Left_MotorB() {
+  setMotorDirection(LEFT_MOTOR, MOTOR_DIR_BACKWARD);
+  LeftYValue = ps2x.Analog(PSS_LY);
+  LeftYValue = constrain(ps2x.Analog(PSS_LY), 0, -50);
+  SpeedSettingL = map(LeftYValue, 135, 255, -0, -50);
+  setMotorSpeed(LEFT_MOTOR, SpeedSettingL);
+  ps2x.read_gamepad();
+}
+
+void Right_MotorB() {
+  setMotorDirection(RIGHT_MOTOR, MOTOR_DIR_BACKWARD);
+  RightYValue = ps2x.Analog(PSS_RY);
+  RightYValue = constrain(ps2x.Analog(PSS_RY), 0, -50);
+  SpeedSettingR = map(RightYValue, 135, 255, 0, -50);
+  setMotorSpeed(RIGHT_MOTOR, SpeedSettingR);
+  ps2x.read_gamepad();
+}
+
+void Both_MotorsF() {
+  setMotorDirection(BOTH_MOTORS, MOTOR_DIR_FORWARD);
+  RightYValue = ps2x.Analog(PSS_RY);
+  RightYValue = constrain(ps2x.Analog(PSS_RY), 0, 50);
+  SpeedSettingR = map(RightYValue, 115, 0, 0, 50);
+  setMotorSpeed(BOTH_MOTORS, SpeedSettingR);
+}
+
+void Both_MotorsB() {
+  setMotorDirection(BOTH_MOTORS, MOTOR_DIR_BACKWARD);
+  RightYValue = ps2x.Analog(PSS_RY);
+  RightYValue = constrain(ps2x.Analog(PSS_RY), 0, -50);
+  SpeedSettingR = map(RightYValue, 135, 255, 0, -50);
+  setMotorSpeed(BOTH_MOTORS, SpeedSettingR);
+}
+
+void handleReceivedTinyIRData(uint16_t aAddress, uint8_t aCommand, bool isRepeat) {
+    /*
+     * Since we are in an interrupt context and do not want to miss the next interrupts 
+     *  of the repeats coming soon, quickly save data and return to main loop
+     */
+    IRresults.address = aAddress;
+    IRresults.command = aCommand;
+    IRresults.isRepeat = isRepeat;
+    // Let main function know that new data is available
+    justWritten = true;
+}
+
+void Gripper() {
+  if (ps2x.ButtonPressed(PSB_CIRCLE)) {
+    myservo.write(0);
+  } else {
+    myservo.write(90);
+  }
+}

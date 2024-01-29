@@ -9,8 +9,8 @@
  */
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
-#define IR_RCV_PIN      33
-#define IR_TRX_PIN      18
+#define IR_RCV_PIN 33
+#define IR_TRX_PIN 18
 
 #define UART_SERIAL Serial
 #define PS2_DAT 14  //P1.7 <-> brown wire
@@ -32,8 +32,8 @@ float SpeedSettingL = 0;
 int stopDistance = 5;
 int object = 0;
 float error2;
-float motorSpeed;
 float distIN;
+float motorSpeed;
 const uint8_t lineColor = LIGHT_LINE;
 const uint16_t normalSpeed = 10;
 const uint16_t fastSpeed = 20;
@@ -65,8 +65,7 @@ IRData IRmsg;
 
 volatile bool justWritten = false;
 
-void setup() 
-{
+void setup() {
   UART_SERIAL.begin(115200);
   myservo.attach(SRV_0);
   Serial.begin(57600);  //ZJE: changed from Arduino deafult of 9600
@@ -74,15 +73,12 @@ void setup()
   delayMicroseconds(500 * 1000);  //added delay to give wireless ps2 module some time to startup, before configuring it
   error = 1;
 
-  /*
-  while (error) 
-  {
+
+  while (error) {
     error = ps2x.config_gamepad(PS2_CLK, PS2_CMD, PS2_SEL, PS2_DAT);
-    if (error == 0) 
-    {
+    if (error == 0) {
       Serial.print("Found Controller, configured successful ");
-    } 
-    else if (error == 1)
+    } else if (error == 1)
       Serial.println("No controller found, check wiring, see readme.txt to enable debug. visit www.billporter.info for troubleshooting tips");
 
     else if (error == 2)
@@ -92,31 +88,25 @@ void setup()
       Serial.println("Controller refusing to enter Pressures mode, may not support it. ");
     delayMicroseconds(1000 * 1000);
   }
-  */
+
   setupWaitBtn(LP_LEFT_BTN);
   setupLed(RED_LED);
 
 
   Serial.println(F("START " __FILE__ " from " __DATE__));
   //  Serial.print(ps2x.Analog(1), HEX);
-  if (irRX.initIRReceiver(true, true, handleReceivedTinyIRData)) 
-  {
+  if (irRX.initIRReceiver()) {
     Serial.println(F("Ready to receive NEC IR signals at pin " STR(IR_RCV_PIN)));
-  } 
-  else 
-  {
+  } else {
     Serial.println("Initialization of IR receiver failed!");
-    while (1) {;}
+    while (1) { ; }
   }
 
-  if (sendIR.initIRSender()) 
-  {
+  if (sendIR.initIRSender()) {
     Serial.println(F("Ready to transmit NEC IR signals on pin " STR(IR_TRX_PIN)));
-  } 
-  else 
-  {
+  } else {
     Serial.println("Initialization of IR transmitter failed!");
-    while (1) {;}
+    while (1) { ; }
   }
 
   IRmsg.protocol = NEC;
@@ -128,10 +118,9 @@ void setup()
   enableTXLEDFeedback(GREEN_LED);
 
 
-  /*
+
   type = ps2x.readType();
-  switch (type) 
-  {
+  switch (type) {
     case 0:
       Serial.print("Unknown Controller type found ");
       break;
@@ -145,84 +134,141 @@ void setup()
       Serial.print("Wireless Sony DualShock Controller found ");
       break;
   }
-  */
 }
 
 
 
 
-void loop() 
-{
-  if (justWritten) 
-  {
-    justWritten = false;
-    Serial.print("Address=0x");
-    Serial.print(IRresults.address, HEX);
-    Serial.print(" Command=0x");
-    Serial.print(IRresults.command, HEX);
-    if (IRresults.isRepeat) 
-    {
-      Serial.print(" - repeat");
-    }
-    Serial.println();
+void loop() {
+  if (isCalibrationComplete == false) {
+    floorCalibration();
+    isCalibrationComplete = true;
   }
-
-  if (irRX.decodeIR(&IRresults)) 
-  {
-    Serial.print("A=0x");
-    Serial.print(IRresults.address, HEX);
-    Serial.print(" C=0x");
-    Serial.print(IRresults.command, HEX);
-    Serial.print(" is repeat: ");
-    Serial.print(IRresults.isRepeat ? "TRUE" : "FALSE");
-    Serial.println();
-  }
-
   sendIR.write(&IRmsg);
   Serial.print('.');
-  delay(1000);
-
-  /*
-  ps2x.read_gamepad();
-
-  if(ps2x.Button(PSB_PAD_UP)) 
-  {      
-    Serial.print("Go Forward");
-    forward();
+  uint32_t linePos = getLinePosition();
+  if (error == 1)
+    return;
+  if (type != 2) {
+    ps2x.read_gamepad();
+    switch (STATE) {
+      case IDLE:
+        ps2x.read_gamepad();
+        if (ps2x.Button(PSB_L1)) {
+          STATE = MANUAL;
+        }
+        break;
+      case MANUAL:
+        object = 0;
+        enableMotor(2);
+        ps2x.read_gamepad();
+        if (ps2x.Analog(PSS_LY) < 115 && ps2x.Analog(PSS_RY) < 115) {
+          Both_MotorsF();
+        } else if (ps2x.Analog(PSS_LY) > 135 && ps2x.Analog(PSS_RY) > 135) {
+          Both_MotorsB();
+        } else if (ps2x.Analog(PSS_LY) < 115) {
+          Left_MotorF();
+        } else if (ps2x.Analog(PSS_LY) > 135) {
+          Left_MotorB();
+        } else if (ps2x.Analog(PSS_RY) < 115) {
+          Right_MotorF();
+        } else if (ps2x.Analog(PSS_RY) > 135) {
+          Right_MotorB();
+        } else if (ps2x.NewButtonState()) {
+          Gripper();
+          if (ps2x.ButtonPressed(PSB_CROSS)) {
+            STATE = Auto_Right;
+          }
+          if (ps2x.Button(PSB_R1)) {
+            STATE = Line_Follow;
+          }
+        } else {
+          disableMotor(BOTH_MOTORS);
+        }
+        break;
+      case Auto_Right:
+        Auto_Turn_Right();
+        if (ps2x.Button(PSB_L1)) {
+          object = 0;
+          STATE = MANUAL;
+        }
+        break;
+      case Line_Follow:
+        Line_Following();
+        if (ps2x.Button(PSB_L1)) {
+          object == 0;
+          STATE = MANUAL;
+        }
+        break;
+    }
+    delayMicroseconds(50 * 1000);
   }
-  if(ps2x.Button(PSB_PAD_RIGHT))
-  {
-    Serial.print("Turn Right");
-    turnRight();
+
+  void Auto_Turn_Right() {
+    while (object <= 1) {
+      distIN = readSharpDistIN(1);
+      error = (distIN - stopDistance);
+      motorSpeed = abs(error) * 6;
+      motorSpeed = constrain(motorSpeed, 0, 40);
+      readSharpDistIN(1);
+      setMotorDirection(BOTH_MOTORS, MOTOR_DIR_FORWARD);
+      delay(100);
+      if ((object == 0) && (distIN <= 5.5) && (distIN >= 0)) {
+        setMotorSpeed(RIGHT_MOTOR, 0);
+        setMotorSpeed(LEFT_MOTOR, 25);
+        delay(1000);
+        setMotorSpeed(BOTH_MOTORS, 25);
+        delay(300);
+        object = 1;
+        readSharpDistIN(1);
+      } else if ((object == 1) && (distIN <= 5.5) && (distIN >= 0)) {
+        myservo.write(0);
+        setMotorSpeed(BOTH_MOTORS, 0);
+        delay(3000);
+        object = 2;
+        readSharpDistIN(1);
+      } else {
+        setMotorSpeed(BOTH_MOTORS, (int)motorSpeed);
+        delayMicroseconds(100);
+        readSharpDistIN(1);
+      }
+    }
   }
-  if(ps2x.Button(PSB_PAD_LEFT))
-  {
-    Serial.print("Turn Left");
-    turnLeft();
+
+  void Line_Following() {
+    while (object == 0) {
+      uint32_t linePos = getLinePosition();
+      if ((linePos > 0) && (linePos < 4000)) {
+        setMotorSpeed(LEFT_MOTOR, 0);
+        setMotorSpeed(RIGHT_MOTOR, 25);
+        if (ps2x.ButtonPressed(PSB_L2)) {
+          object = 1;
+        }
+      } else if (linePos > 5000) {
+        setMotorSpeed(LEFT_MOTOR, 25);
+        setMotorSpeed(RIGHT_MOTOR, 0);
+        if (ps2x.ButtonPressed(PSB_L2)) {
+          object = 1;
+        }
+      } else if (linePos == 0) {
+        enableMotor(2);
+        setMotorDirection(BOTH_MOTORS, MOTOR_DIR_FORWARD);
+        setMotorSpeed(BOTH_MOTORS, 0);
+        object = 1;
+      } else {
+        setMotorSpeed(LEFT_MOTOR, 25);
+        setMotorSpeed(RIGHT_MOTOR, 25);
+      }
+    }
+    while (STATE == Line_Follow) {
+      if (object == 1) {
+        STATE = MANUAL;
+      }
+    }
   }
-  if(ps2x.Button(PSB_PAD_DOWN))
-  {
-    Serial.print("Go Backward");
-    backward();
-  }   
-  if(ps2x.Button(PSB_TRIANGLE))
-  {
-    Serial.print("Spin");
-    spin();
-  }
-  if(ps2x.Button(PSB_CROSS))
-  {
-    Serial.print("Stop");
-    stop();
-  }
-  */
-}
 
 
-
-
-  void floorCalibration() 
-  {
+  void floorCalibration() {
     /* Place Robot On Floor (no line) */
     delay(2000);
     UART_SERIAL.println("Push left button on Launchpad to begin calibration.");

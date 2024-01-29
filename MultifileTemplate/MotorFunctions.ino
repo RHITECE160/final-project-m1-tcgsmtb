@@ -18,31 +18,27 @@
 */
 
 /* Moves robot forward: both motors forward same speed */
-void forward() 
-{
+void forward() {
   enableMotor(BOTH_MOTORS);
   setMotorDirection(LEFT_MOTOR, MOTOR_DIR_FORWARD);
   setMotorDirection(RIGHT_MOTOR, MOTOR_DIR_FORWARD);
   setMotorSpeed(BOTH_MOTORS, fastSpeed);
 }
 
-void backward() 
-{
+void backward() {
   enableMotor(BOTH_MOTORS);
   setMotorDirection(LEFT_MOTOR, MOTOR_DIR_BACKWARD);
   setMotorDirection(RIGHT_MOTOR, MOTOR_DIR_BACKWARD);
   setMotorSpeed(BOTH_MOTORS, fastSpeed);
 }
 
-void turnRight() 
-{
+void turnRight() {
   enableMotor(LEFT_MOTOR);
   setMotorDirection(LEFT_MOTOR, MOTOR_DIR_FORWARD);
   setMotorSpeed(BOTH_MOTORS, fastSpeed);
 }
 
-void turnLeft() 
-{
+void turnLeft() {
   enableMotor(RIGHT_MOTOR);
   setMotorDirection(RIGHT_MOTOR, MOTOR_DIR_FORWARD);
   setMotorSpeed(BOTH_MOTORS, fastSpeed);
@@ -57,5 +53,13 @@ void spin() {
 
 /* Stops robot forward: both motors disabled */
 void stop() {
-    disableMotor(BOTH_MOTORS);
+  disableMotor(BOTH_MOTORS);
+}
+
+void Gripper() {
+  if (ps2x.ButtonPressed(PSB_CIRCLE)) {
+    myservo.write(0);
+  } else if {
+    myservo.write(90);
+  }
 }

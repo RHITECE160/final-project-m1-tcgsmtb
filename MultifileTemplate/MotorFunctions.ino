@@ -18,6 +18,9 @@
 */
 
 /* Moves robot forward: both motors forward same speed */
+
+int gripperValue = 90;
+
 void forward() {
   enableMotor(BOTH_MOTORS);
   setMotorDirection(LEFT_MOTOR, MOTOR_DIR_FORWARD);
@@ -63,15 +66,15 @@ void stop() {
 //Opens the servo gripper
 void gripperOpen() 
 {
-  for (int i = 40; i < 140; i++)
-    myservo.write(i);
+  if (gripperValue < 180) gripperValue++;
+    myservo.write(gripperValue);
 }
 
 //Closes the servo gripper
 void gripperClose()
 {
-  for (int i = 140; i > 40; i--)
-    myservo.write(i);
+  if (gripperValue > 0) gripperValue--;
+    myservo.write(gripperValue);
 }
 
 void catrinaCandle()

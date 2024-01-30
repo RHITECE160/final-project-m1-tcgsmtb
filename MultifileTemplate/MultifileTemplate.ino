@@ -135,7 +135,7 @@ void setup()
   Serial.println("Photoresistor Initialized");
 
   //Initialize the servo
-  myservo.attach(SRV_0);
+  myservo.attach(38);
   Serial.println("Servo Initialized");
 
 
@@ -175,9 +175,9 @@ void performStateMachine()
   {
     case MANUAL:
 
-      Serial.println("Entering Manual Mode");
+      //Serial.println("Entering Manual Mode");
       playStationControls();
-      if (ps2x.ButtonPressed(PSB_SELECT))
+      if (ps2x.Button(PSB_SELECT))
         currentState = AUTO;
       break;
 
@@ -185,7 +185,7 @@ void performStateMachine()
 
       Serial.println("Entering Autonomous Mode");
       autoControls();
-      if (ps2x.ButtonPressed(PSB_SELECT))
+      if (ps2x.Button(PSB_SELECT))
         currentState = MANUAL;
       break;  
 

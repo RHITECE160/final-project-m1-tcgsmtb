@@ -74,24 +74,29 @@ void gripperClose()
     myservo.write(i);
 }
 
-// void catrinaCandle()
-// {
-//   //If command available, receive the command
-//   if (irRX.decodeIR(&IRresults))
-//     IRcommand = IRresults.command;
+void catrinaCandle()
+{
+  //If command available, receive the command
+  if (irRX.decodeIR(&IRresults))
+    IRcommand = IRresults.command;
 
-//   //Send IR data
-//   IRmsg.address = 0xCE;
-//   IRmsg.command = IRcommand;
-//   sendIR.write(&IRmsg);
-//   delay(500);
-// }
+  //Send IR data
+  IRmsg.address = 0xCE;
+  IRmsg.command = IRcommand;
+  sendIR.write(&IRmsg);
+  delay(500);
+}
 
-// void votiveCandle()
-// {
-//   //Send IR data
-//   IRmsg.address = 0xEE;
-//   IRmsg.command = 0xA0;
-//   sendIR.write(&IRmsg);
-//   delay(500);
-// }
+void votiveCandle()
+{
+  //
+  if (irRX.decodeIR(&IRresults) && IRresults.command == 160) //Gold Votive Candle
+    IRcommand = 0x61;
+  else IRcommand 0xA0 //Regular Votive Candle
+
+  //Send IR data
+  IRmsg.address = 0xEE;
+  IRmsg.command = IRcommand;
+  sendIR.write(&IRmsg);
+  delay(500);
+}

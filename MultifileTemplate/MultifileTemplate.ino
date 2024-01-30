@@ -23,13 +23,13 @@
 //#define IR_RCV_PIN 5
 //#define IR_TRX_PIN 18
 
-//Create IR data structures
-//IRreceiver irRX(IR_RCV_PIN);
-//IRsender sendIR(IR_TRX_PIN);
-// IRData IRresults;
-// IRData IRmsg;
-// uint16_t IRaddress;           ///< Decoded address
-// uint16_t IRcommand;           ///< Decoded command
+Create IR data structures
+IRreceiver irRX(IR_RCV_PIN);
+IRsender sendIR(IR_TRX_PIN);
+IRData IRresults;
+IRData IRmsg;
+uint16_t IRaddress;           ///< Decoded address
+uint16_t IRcommand;           ///< Decoded command
 
 //Create and set the photoresistor 
 const int phoRes = A15;
@@ -87,22 +87,22 @@ int stopDistance = 5; //Determins how far from a wall the robot will stop
 void setup() 
 {
   //Initialize the serial monitor
-  Serial.begin(115200);
+  Serial.begin(57600);
   Serial.println("Initializing Serial Monitor!");
 
   //Initialize the RSLK code
   setupRSLK();
 
   //Check if IR is ready to transmit signals
-  // if (sendIR.initIRSender())
-  // {
-  //   Serial.println(F("ready to Transmit NEC IR signals on pin " STR(IR_TRX_PIN)));
-  // }
-  // else 
-  // {
-  //   Serial.println("Initialization of IR Transmitter Failed.");
-  //   while (1) {;}
-  // }
+  if (sendIR.initIRSender())
+  {
+    Serial.println(F("ready to Transmit NEC IR signals on pin " STR(IR_TRX_PIN)));
+  }
+  else 
+  {
+    Serial.println("Initialization of IR Transmitter Failed.");
+    while (1) {;}
+  }
 
   delay(500);
   enableTXLEDFeedback(GREEN_LED);
@@ -141,7 +141,7 @@ void setup()
       Serial.println("No controller found, check wiring, see readme.txt to enable debug. visit www.billporter.info for troubleshooting tips");
     else if (error == 2)
       Serial.println("Controller found but not accepting commands. see readme.txt to enable debug. Visit www.billporter.info for troubleshooting tips");
-    else if (error == 3)
+    else if (error == 3) 
       Serial.println("Controller refusing to enter Pressures mode, may not support it. ");
     delayMicroseconds(1000 * 1000);
   }

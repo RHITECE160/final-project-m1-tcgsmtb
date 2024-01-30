@@ -70,28 +70,28 @@ void gripperOpen()
 //Closes the servo gripper
 void gripperClose()
 {
-  for (int i = 140, i > 40; i--)
+  for (int i = 140; i > 40; i--)
     myservo.write(i);
 }
 
-void catrinaCandle()
-{
-  //If command available, receive the command
-  if (irRX.decodeIR(&IRresults))
-    IRcommand = IRresults.command;
+// void catrinaCandle()
+// {
+//   //If command available, receive the command
+//   if (irRX.decodeIR(&IRresults))
+//     IRcommand = IRresults.command;
 
-  //Send IR data
-  IRmsg.address = 0xCE;
-  IRmsg.command = IRcommand;
-  sendIR.write(&IRmsg);
-  delay(500);
-}
+//   //Send IR data
+//   IRmsg.address = 0xCE;
+//   IRmsg.command = IRcommand;
+//   sendIR.write(&IRmsg);
+//   delay(500);
+// }
 
-void votiveCandle()
-{
-  //Send IR data
-  IRmsg.address = 0xEE;
-  IRmsg.command = 0xA0;
-  sendIR.write(&IRmsg);
-  delay(500);
-}
+// void votiveCandle()
+// {
+//   //Send IR data
+//   IRmsg.address = 0xEE;
+//   IRmsg.command = 0xA0;
+//   sendIR.write(&IRmsg);
+//   delay(500);
+// }

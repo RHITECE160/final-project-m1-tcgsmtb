@@ -35,7 +35,7 @@ void autoControls()
         if (ps2x.Button(PSB_START))
         {
           currentState = MANUAL;
-          currentAutoState = START;
+          currentAutoState = GO;
         }
         break;
 
@@ -52,7 +52,7 @@ void lineFollowMode()
 
   if (position > 3600 && position < 4475)
   {
-    enableMotor(BOTH_MOTORS)
+    enableMotor(BOTH_MOTORS);
     setMotorDirection(BOTH_MOTORS, MOTOR_DIR_FORWARD);
     setMotorSpeed(LEFT_MOTOR, 5);
     setMotorSpeed(RIGHT_MOTOR, 7);

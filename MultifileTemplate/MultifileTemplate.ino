@@ -20,16 +20,16 @@
 //Define the IR pins
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
-#define IR_RCV_PIN 33
-#define IR_TRX_PIN 18
+//#define IR_RCV_PIN 5
+//#define IR_TRX_PIN 18
 
 //Create IR data structures
-IRreceiver irRX(IR_RCV_PIN);
-IRsender sendIR(IR_TRX_PIN);
-IRData IRresults;
-IRData IRmsg;
-uint16_t address;           ///< Decoded address
-uint16_t command;           ///< Decoded command
+//IRreceiver irRX(IR_RCV_PIN);
+//IRsender sendIR(IR_TRX_PIN);
+// IRData IRresults;
+// IRData IRmsg;
+// uint16_t IRaddress;           ///< Decoded address
+// uint16_t IRcommand;           ///< Decoded command
 
 //Create and set the photoresistor 
 const int phoRes = A15;
@@ -46,7 +46,7 @@ int resVal = analogRead(phoRes);
 PS2X ps2x;  // create PS2 Controller Class
 bool pressures = false;
 bool rumble = false;
-int psError = 1;
+int error = 1;
 
 //Create Servo data structure
 Servo myservo; // create Servo Class
@@ -67,7 +67,7 @@ enum autoStateSel
 
 //Create state machine variables 
 stateSel currentState = MANUAL;
-autoStateSel currentAutoState = START;
+autoStateSel currentAutoState = GO;
 
 //Create calibration variable
 bool isCalibrationComplete = false;
@@ -87,40 +87,40 @@ int stopDistance = 5; //Determins how far from a wall the robot will stop
 void setup() 
 {
   //Initialize the serial monitor
-  Serial.begin(57600);
+  Serial.begin(115200);
   Serial.println("Initializing Serial Monitor!");
 
   //Initialize the RSLK code
   setupRSLK();
 
   //Check if IR is ready to transmit signals
-  if (sendIR.initIRSender())
-  {
-    Serial.println(F("ready to Transmit NEC IR signals on pin " STR(IR_TRX_PIN)));
-  }
-  else 
-  {
-    Serial.println("Initialization of IR Transmitter Failed.");
-    while (1) {;}
-  }
+  // if (sendIR.initIRSender())
+  // {
+  //   Serial.println(F("ready to Transmit NEC IR signals on pin " STR(IR_TRX_PIN)));
+  // }
+  // else 
+  // {
+  //   Serial.println("Initialization of IR Transmitter Failed.");
+  //   while (1) {;}
+  // }
 
   delay(500);
   enableTXLEDFeedback(GREEN_LED);
-  IRmsg.protocol = NEC;
-  IRmsg.command = IRcommand;
-  IRmsg.address = IRaddress;
-  IRmsg.isRepeat = false;
+  // IRmsg.protocol = NEC;
+  // IRmsg.command = IRcommand;
+  // IRmsg.address = IRaddress;
+  // IRmsg.isRepeat = false;
 
-  //Check if IR is ready to receive signals
-  if (irRX.initIRReceiver())
-  {
-    Serial.println(F("Ready to Receiver NEC IR signals at PIN " STR(IR_RCV_PIN)));
-  }
-  else
-  {
-    Serial.println("Initialization of IR receiver Failed.");
-    while (1) {;}
-  }
+  // //Check if IR is ready to receive signals
+  // if (irRX.initIRReceiver())
+  // {
+  //   Serial.println(F("Ready to Receiver NEC IR signals at PIN " STR(IR_RCV_PIN)));
+  // }
+  // else
+  // {
+  //   Serial.println("Initialization of IR receiver Failed.");
+  //   while (1) {;}
+  // }
 
   delay(500);
   enableRXLEDFeedback(BLUE_LED);
@@ -132,9 +132,9 @@ void setup()
   //Initialize the servo
   myservo.attach(SRV_0);
 
-  while (psError) 
+  while (error) 
   {
-    psError = ps2x.config_gamepad(PS2_CLK, PS2_CMD, PS2_SEL, PS2_DAT, pressures, rumble);
+    error = ps2x.config_gamepad(PS2_CLK, PS2_CMD, PS2_SEL, PS2_DAT, pressures, rumble);
     if (error == 0) 
       Serial.print("Found Controller, configured successful ");
     else if (error == 1)
@@ -154,10 +154,10 @@ void loop()
 
   //Perform respective state-machine state
   performStateMachine();
-  if (ps2x.button(PSB_L1))
-    voltiveCandle();
-  if (ps2x.button(PSB_R1))
-    catrinaCandle();
+  // if (ps2x.Button(PSB_L1))
+  //   votiveCandle();
+  //if (ps2x.Button(PSB_R1))
+    //catrinaCandle();
 
 }
 

@@ -20,10 +20,10 @@
 //Define the IR pins
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
-//#define IR_RCV_PIN 5
-//#define IR_TRX_PIN 18
+#define IR_RCV_PIN 5 //P4.1
+#define IR_TRX_PIN 18 //P5.1
 
-Create IR data structures
+//Create IR data structures
 IRreceiver irRX(IR_RCV_PIN);
 IRsender sendIR(IR_TRX_PIN);
 IRData IRresults;
@@ -32,9 +32,12 @@ uint16_t IRaddress;           ///< Decoded address
 uint16_t IRcommand;           ///< Decoded command
 
 //Create and set the photoresistor 
-const int phoRes = A15;
-const int resLED = 18;
+const int phoRes = 2; //6.0
+//const int resLED = 18; //3.0
 int resVal = analogRead(phoRes);
+
+//Create and set IR distance sensor
+#define distSens 26 //4.4
 
 //Define the Playstation controller pins 
 #define PS2_DAT 14  //P1.7 <-> brown wire
@@ -44,8 +47,8 @@ int resVal = analogRead(phoRes);
 
 //Create Playstation data structure
 PS2X ps2x;  // create PS2 Controller Class
-bool pressures = false;
-bool rumble = false;
+// bool pressures = false;
+// bool rumble = false;
 int error = 1;
 
 //Create Servo data structure
@@ -96,7 +99,7 @@ void setup()
   //Check if IR is ready to transmit signals
   if (sendIR.initIRSender())
   {
-    Serial.println(F("ready to Transmit NEC IR signals on pin " STR(IR_TRX_PIN)));
+    Serial.println(F("Ready to Transmit NEC IR signals on pin " STR(IR_TRX_PIN)));
   }
   else 
   {
@@ -106,35 +109,39 @@ void setup()
 
   delay(500);
   enableTXLEDFeedback(GREEN_LED);
-  // IRmsg.protocol = NEC;
-  // IRmsg.command = IRcommand;
-  // IRmsg.address = IRaddress;
-  // IRmsg.isRepeat = false;
+  IRmsg.protocol = NEC;
+  IRmsg.command = IRcommand;
+  IRmsg.address = IRaddress;
+  IRmsg.isRepeat = false;
 
-  // //Check if IR is ready to receive signals
-  // if (irRX.initIRReceiver())
-  // {
-  //   Serial.println(F("Ready to Receiver NEC IR signals at PIN " STR(IR_RCV_PIN)));
-  // }
-  // else
-  // {
-  //   Serial.println("Initialization of IR receiver Failed.");
-  //   while (1) {;}
-  // }
+  //Check if IR is ready to receive signals
+  if (irRX.initIRReceiver())
+  {
+    Serial.println(F("Ready to Receiver NEC IR signals on pin " STR(IR_RCV_PIN)));
+  }
+  else
+  {
+    Serial.println("Initialization of IR receiver Failed.");
+    while (1) {;}
+  }
+  Serial.println("IR transmittion and receiver completed");
 
   delay(500);
-  enableRXLEDFeedback(BLUE_LED);
+  //enableRXLEDFeedback(BLUE_LED);
 
   //Initialize the photoresistor
-  pinMode(resLED, OUTPUT);
+  //pinMode(resLED, OUTPUT);
   pinMode(phoRes, INPUT);
+  Serial.println("Photoresistor Initialized");
 
   //Initialize the servo
   myservo.attach(SRV_0);
+  Serial.println("Servo Initialized");
+
 
   while (error) 
   {
-    error = ps2x.config_gamepad(PS2_CLK, PS2_CMD, PS2_SEL, PS2_DAT, pressures, rumble);
+    error = ps2x.config_gamepad(PS2_CLK, PS2_CMD, PS2_SEL, PS2_DAT);
     if (error == 0) 
       Serial.print("Found Controller, configured successful ");
     else if (error == 1)
@@ -180,7 +187,6 @@ void performStateMachine()
       autoControls();
       if (ps2x.ButtonPressed(PSB_SELECT))
         currentState = MANUAL;
-
       break;  
 
     default:
@@ -192,19 +198,43 @@ void performStateMachine()
 void playStationControls()
 {
   if (ps2x.Button(PSB_PAD_UP)) //Makes the robot move forward
+  {
+    Serial.println("Moving Forward");
     forward();
+  } 
   else if (ps2x.Button(PSB_PAD_DOWN)) //Makes the robot move backward
+  {
+    Serial.println("Moving Backward");
     backward();
+  }
   else if (ps2x.Button(PSB_PAD_RIGHT)) //Makes the robot turn right
+  {
+    Serial.println("Turning Right");
     turnRight();
+  }
   else if (ps2x.Button(PSB_PAD_LEFT)) //Makes the robot turn left
+  {
+    Serial.println("Turning Left");
     turnLeft();
+  }
   else if (ps2x.Button(PSB_CROSS)) //Makes the robot stop
+  {
+    Serial.println("Stopping Robot");
     stop();
+  }
   else if (ps2x.Button(PSB_CIRCLE)) //Makes the robot spin
+  {
+    Serial.println("Spinning Robot");
     spin();
+  }
   else if (ps2x.Button(PSB_R2))
+  {
+    Serial.println("Opening Gripper");
     gripperOpen();
+  }
   else if (ps2x.Button(PSB_L2))
+  {
+    Serial.println("Closing Gripper");
     gripperClose();
+  }
 }

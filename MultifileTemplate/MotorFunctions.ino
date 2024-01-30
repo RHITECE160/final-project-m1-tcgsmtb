@@ -92,7 +92,7 @@ void votiveCandle()
   //
   if (irRX.decodeIR(&IRresults) && IRresults.command == 160) //Gold Votive Candle
     IRcommand = 0x61;
-  else IRcommand 0xA0 //Regular Votive Candle
+  else IRcommand = 0xA0; //Regular Votive Candle
 
   //Send IR data
   IRmsg.address = 0xEE;

@@ -35,7 +35,7 @@ void autoControls()
         if (ps2x.Button(PSB_START))
         {
           currentState = MANUAL;
-          currentAutoState = GO;
+          currentAutoState = IDLE;
         }
         break;
 

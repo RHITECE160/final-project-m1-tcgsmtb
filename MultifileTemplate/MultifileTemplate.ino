@@ -21,7 +21,7 @@
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
 #define IR_RCV_PIN 5 //P4.1
-#define IR_TRX_PIN 18 //P5.1
+#define IR_TRX_PIN 18 //P3.0
 
 //Create IR data structures
 IRreceiver irRX(IR_RCV_PIN);
@@ -30,11 +30,6 @@ IRData IRresults;
 IRData IRmsg;
 uint16_t IRaddress;           ///< Decoded address
 uint16_t IRcommand;           ///< Decoded command
-
-//Create and set the photoresistor 
-const int phoRes = 2; //6.0
-//const int resLED = 18; //3.0
-int resVal = analogRead(phoRes);
 
 //Create and set IR distance sensor
 #define distSens 26 //4.4
@@ -55,22 +50,19 @@ int error = 1;
 Servo myservo; // create Servo Class
 
 //Create the options for Manual-Autonomous states
-enum stateSel
-{
-  MANUAL,
-  AUTO
-};
 
-enum autoStateSel
-{
-  GO,
-  LINEFOLLOW,
-  IDLE
-};
+int currentState = 0;
+/* currentState
+* 0 - Manual
+* 1 - Auto
+*/
 
-//Create state machine variables 
-stateSel currentState = MANUAL;
-autoStateSel currentAutoState = GO;
+int currentAutoState = 0;
+/* currentAutoState
+* 0 - Go
+* 1 - LineFollow
+* 2 - Idle
+*/
 
 //Create calibration variable
 bool isCalibrationComplete = false;
@@ -129,11 +121,6 @@ void setup()
   delay(500);
   //enableRXLEDFeedback(BLUE_LED);
 
-  //Initialize the photoresistor
-  //pinMode(resLED, OUTPUT);
-  pinMode(phoRes, INPUT);
-  Serial.println("Photoresistor Initialized");
-
   //Initialize the servo
   myservo.attach(38);
   Serial.println("Servo Initialized");
@@ -161,10 +148,10 @@ void loop()
 
   //Perform respective state-machine state
   performStateMachine();
-  // if (ps2x.Button(PSB_L1))
-  //   votiveCandle();
-  //if (ps2x.Button(PSB_R1))
-    //catrinaCandle();
+  if (ps2x.Button(PSB_L1))
+    votiveCandle();
+  if (ps2x.Button(PSB_R1))
+    catrinaCandle();
 
 }
 
@@ -173,23 +160,24 @@ void performStateMachine()
 {
   switch (currentState)
   {
-    case MANUAL:
-
-      //Serial.println("Entering Manual Mode");
+    case 0:
+      Serial.println("Entering Manual Mode");
       playStationControls();
-      if (ps2x.Button(PSB_SELECT))
-        currentState = AUTO;
+      if (ps2x.Button(PSB_SELECT)) {
+        Serial.println(" from current state = 0 ->Select button pushed");
+        currentState = 1;
+      }
       break;
 
-    case AUTO:
-
+    case 1:
       Serial.println("Entering Autonomous Mode");
       autoControls();
       if (ps2x.Button(PSB_SELECT))
-        currentState = MANUAL;
+        currentState = 0;
       break;  
 
     default:
+      currentState = 1;
       break;
   }
 }

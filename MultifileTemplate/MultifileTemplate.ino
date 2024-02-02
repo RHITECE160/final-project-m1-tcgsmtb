@@ -21,7 +21,7 @@ P2.3 - Playstation Yellow Wire
 P6.7 - Playstation Blue Wire
 
 P4.1 - IR Receiver 
-P3.0 - IR Receiver
+P3.0 - IR Transmitter
 
 P4.4 - Ultrasonic 
 
@@ -176,17 +176,17 @@ void loop() {
   //Read Playstation controller input
   ps2x.read_gamepad();
 
-  distIn = ultrasonic.read();
-  if (distIn < 10)
-  {
-    stop();
-  }
+  // distIn = ultrasonic.read();
+  // if (distIn < 10)
+  // {
+  //   stop();
+  // }
 
 
-  if (isCalibrationComplete == false) {
-    floorCalibration();
-    isCalibrationComplete == true;
-  }
+  // if (isCalibrationComplete == false) {
+  //   floorCalibration();
+  //   isCalibrationComplete == true;
+  // }
 
   //Perform respective state-machine state
   performStateMachine();

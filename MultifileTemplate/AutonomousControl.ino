@@ -63,8 +63,6 @@ void floorCalibration()
     delay(2000);
     Serial.println("Push left button on Launchpad to begin calibration.");
     Serial.println("Make sure the robot is on the floor away from the line.\n");
-    /* Wait until button is pressed to start robot */
-    waitBtnPressed(LP_LEFT_BTN, RED_LED);
 
     delay(500);
     Serial.println("Running calibration on floor");

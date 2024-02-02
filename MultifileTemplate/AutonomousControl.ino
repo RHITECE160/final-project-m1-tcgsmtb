@@ -11,21 +11,7 @@
 */
 
 
-//Logs the time of the previous autonomous event
-unsigned long previousEvent;
 
-//Create calibration variable
-bool isCalibrationComplete = false;
-
-//Create speed variables
-const uint16_t stopped = 0;
-const uint16_t normalSpeed = 10;
-const uint16_t fastSpeed = 20;
-
-//Used for the storage of line following data
-uint32_t position; 
-int direction;
-const uint8_t linecolor = LIGHT_LINE;
 
 void autoControls()
 {
@@ -56,7 +42,7 @@ void autoControls()
 
 void lineFollowMode()
 {
-  position = getLinePosition();
+  linePos = getLinePosition();
   direction = 0;
 
   if ((linePos > 0) && (linePos < 4000)) {    // turn left

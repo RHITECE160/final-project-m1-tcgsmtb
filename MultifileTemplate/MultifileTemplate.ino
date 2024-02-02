@@ -33,6 +33,7 @@ P5.1 - Photoresistor
 #include "SimpleRSLK.h"
 #include <Servo.h>
 #include <TinyIRremote.h>
+#include <Ultrasonic.h>
 
 //Define the IR pins
 #define STR_HELPER(x) #x
@@ -55,7 +56,7 @@ uint16_t IRcommand;  ///< Decoded command
 
 //Setup ultrasonic 
 Ultrasonic ultrasonic(26);
-int distIN;
+int distIn;
 int motorSpeed;
 
 //Define the Playstation controller pins
@@ -91,6 +92,21 @@ int currentAutoState = 0;
 //Create remaining possibily-needed variables
 int stopDistance = 5;  //Determins how far from a wall the robot will stop
 
+//Logs the time of the previous autonomous event
+unsigned long previousEvent;
+
+//Create calibration variable
+bool isCalibrationComplete = false;
+
+//Create speed variables
+const uint16_t stopped = 0;
+const uint16_t normalSpeed = 10;
+const uint16_t fastSpeed = 20;
+
+//Used for the storage of line following data
+uint32_t linePos; 
+int direction;
+const uint8_t lineColor = LIGHT_LINE;
 
 /*
 1). Upload file(s)
@@ -160,8 +176,8 @@ void loop() {
   //Read Playstation controller input
   ps2x.read_gamepad();
 
-  distIn = readSharpDistIN(SensorPos);
-  if (distIN < 10)
+  distIn = ultrasonic.read();
+  if (distIn < 10)
   {
     stop();
   }

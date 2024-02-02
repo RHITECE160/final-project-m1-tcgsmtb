@@ -11,8 +11,25 @@
   Version: 1.0
 */
 
-//Load used libraries 
-#include "PS2X_lib.h"  
+
+/*
+Pin Map:
+
+P1.7 - Playstation Brown Wire
+P1.6 - Playstation Orange Wire
+P2.3 - Playstation Yellow Wire
+P6.7 - Playstation Blue Wire
+
+P4.1 - IR Receiver 
+P3.0 - IR Receiver
+
+P4.4 - Ultrasonic 
+
+P5.1 - Photoresistor
+*/
+
+//Load used libraries
+#include "PS2X_lib.h"
 #include "SimpleRSLK.h"
 #include <Servo.h>
 #include <TinyIRremote.h>
@@ -20,26 +37,21 @@
 //Define the IR pins
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
-#define IR_RCV_PIN 5 //P4.1
-#define IR_TRX_PIN 18 //P5.1
+#define IR_RCV_PIN 5   //P4.1
+#define IR_TRX_PIN 18  //P3.0
 
 //Create IR data structures
 IRreceiver irRX(IR_RCV_PIN);
 IRsender sendIR(IR_TRX_PIN);
 IRData IRresults;
 IRData IRmsg;
-uint16_t IRaddress;           ///< Decoded address
-uint16_t IRcommand;           ///< Decoded command
+uint16_t IRaddress;  ///< Decoded address
+uint16_t IRcommand;  ///< Decoded command
 
-//Create and set the photoresistor 
-const int phoRes = 2; //6.0
-//const int resLED = 18; //3.0
-int resVal = analogRead(phoRes);
+//Create and set Ultrasonic distance sensor
+#define distSens 26  //4.4
 
-//Create and set IR distance sensor
-#define distSens 26 //4.4
-
-//Define the Playstation controller pins 
+//Define the Playstation controller pins
 #define PS2_DAT 14  //P1.7 <-> brown wire
 #define PS2_CMD 15  //P1.6 <-> orange wire
 #define PS2_SEL 34  //P2.3 <-> yellow wire (also called attention)
@@ -52,25 +64,22 @@ PS2X ps2x;  // create PS2 Controller Class
 int error = 1;
 
 //Create Servo data structure
-Servo myservo; // create Servo Class
+Servo myservo;  // create Servo Class
 
 //Create the options for Manual-Autonomous states
-enum stateSel
-{
-  MANUAL,
-  AUTO
-};
 
-enum autoStateSel
-{
-  GO,
-  LINEFOLLOW,
-  IDLE
-};
+int currentState = 0;
+/* currentState
+* 0 - Manual
+* 1 - Auto
+*/
 
-//Create state machine variables 
-stateSel currentState = MANUAL;
-autoStateSel currentAutoState = GO;
+int currentAutoState = 0;
+/* currentAutoState
+* 0 - Go
+* 1 - LineFollow
+* 2 - Idle
+*/
 
 //Create calibration variable
 bool isCalibrationComplete = false;
@@ -85,10 +94,18 @@ const uint8_t lineColor = LIGHT_LINE;
 uint32_t linePos = getLinePosition();
 
 //Create remaining possibily-needed variables
-int stopDistance = 5; //Determins how far from a wall the robot will stop
+int stopDistance = 5;  //Determins how far from a wall the robot will stop
 
-void setup() 
-{
+
+/*
+1). Upload file(s)
+2). Turn chasis on
+3). Turn controller on
+4). Hit reset button - implement a wait button to prevent setup() from running before steps 1-3
+5). Hit the start button the Playstation controller
+*/
+
+void setup() {
   //Initialize the serial monitor
   Serial.begin(57600);
   Serial.println("Initializing Serial Monitor!");
@@ -97,14 +114,11 @@ void setup()
   setupRSLK();
 
   //Check if IR is ready to transmit signals
-  if (sendIR.initIRSender())
-  {
+  if (sendIR.initIRSender()) {
     Serial.println(F("Ready to Transmit NEC IR signals on pin " STR(IR_TRX_PIN)));
-  }
-  else 
-  {
+  } else {
     Serial.println("Initialization of IR Transmitter Failed.");
-    while (1) {;}
+    while (1) { ; }
   }
 
   delay(500);
@@ -115,125 +129,103 @@ void setup()
   IRmsg.isRepeat = false;
 
   //Check if IR is ready to receive signals
-  if (irRX.initIRReceiver())
-  {
+  if (irRX.initIRReceiver()) {
     Serial.println(F("Ready to Receiver NEC IR signals on pin " STR(IR_RCV_PIN)));
-  }
-  else
-  {
+  } else {
     Serial.println("Initialization of IR receiver Failed.");
-    while (1) {;}
+    while (1) { ; }
   }
   Serial.println("IR transmittion and receiver completed");
 
   delay(500);
   //enableRXLEDFeedback(BLUE_LED);
 
-  //Initialize the photoresistor
-  //pinMode(resLED, OUTPUT);
-  pinMode(phoRes, INPUT);
-  Serial.println("Photoresistor Initialized");
-
   //Initialize the servo
   myservo.attach(38);
   Serial.println("Servo Initialized");
 
 
-  while (error) 
-  {
+  while (error) {
     error = ps2x.config_gamepad(PS2_CLK, PS2_CMD, PS2_SEL, PS2_DAT);
-    if (error == 0) 
+    if (error == 0)
       Serial.print("Found Controller, configured successful ");
     else if (error == 1)
       Serial.println("No controller found, check wiring, see readme.txt to enable debug. visit www.billporter.info for troubleshooting tips");
     else if (error == 2)
       Serial.println("Controller found but not accepting commands. see readme.txt to enable debug. Visit www.billporter.info for troubleshooting tips");
-    else if (error == 3) 
+    else if (error == 3)
       Serial.println("Controller refusing to enter Pressures mode, may not support it. ");
     delayMicroseconds(1000 * 1000);
   }
 }
 
-void loop() 
-{
+void loop() {
   //Read Playstation controller input
   ps2x.read_gamepad();
 
   //Perform respective state-machine state
   performStateMachine();
-  // if (ps2x.Button(PSB_L1))
-  //   votiveCandle();
-  //if (ps2x.Button(PSB_R1))
-    //catrinaCandle();
-
+  if (ps2x.Button(PSB_L1))
+    votiveCandle();
+  if (ps2x.Button(PSB_R1))
+    catrinaCandle();
 }
 
 //Switches and performs the actions of the state machine
-void performStateMachine()
-{
-  switch (currentState)
-  {
-    case MANUAL:
-
-      //Serial.println("Entering Manual Mode");
+void performStateMachine() {
+  switch (currentState) {
+    case 0:
+      Serial.println("Entering Manual Mode");
       playStationControls();
-      if (ps2x.Button(PSB_SELECT))
-        currentState = AUTO;
+      if (ps2x.Button(PSB_SELECT)) {
+        Serial.println(" from current state = 0 ->Select button pushed");
+        currentState = 1;
+      }
       break;
 
-    case AUTO:
-
+    case 1:
       Serial.println("Entering Autonomous Mode");
       autoControls();
       if (ps2x.Button(PSB_SELECT))
-        currentState = MANUAL;
-      break;  
+        currentState = 0;
+      break;
 
     default:
+      currentState = 1;
       break;
   }
 }
 
 //Interprets future robot move via button presses on the Playstation controller
-void playStationControls()
-{
-  if (ps2x.Button(PSB_PAD_UP)) //Makes the robot move forward
+void playStationControls() {
+  if (ps2x.Button(PSB_PAD_UP))  //Makes the robot move forward
   {
     Serial.println("Moving Forward");
     forward();
-  } 
-  else if (ps2x.Button(PSB_PAD_DOWN)) //Makes the robot move backward
+  } else if (ps2x.Button(PSB_PAD_DOWN))  //Makes the robot move backward
   {
     Serial.println("Moving Backward");
     backward();
-  }
-  else if (ps2x.Button(PSB_PAD_RIGHT)) //Makes the robot turn right
+  } else if (ps2x.Button(PSB_PAD_RIGHT))  //Makes the robot turn right
   {
     Serial.println("Turning Right");
     turnRight();
-  }
-  else if (ps2x.Button(PSB_PAD_LEFT)) //Makes the robot turn left
+  } else if (ps2x.Button(PSB_PAD_LEFT))  //Makes the robot turn left
   {
     Serial.println("Turning Left");
     turnLeft();
-  }
-  else if (ps2x.Button(PSB_CROSS)) //Makes the robot stop
+  } else if (ps2x.Button(PSB_CROSS))  //Makes the robot stop
   {
     Serial.println("Stopping Robot");
     stop();
-  }
-  else if (ps2x.Button(PSB_CIRCLE)) //Makes the robot spin
+  } else if (ps2x.Button(PSB_CIRCLE))  //Makes the robot spin
   {
     Serial.println("Spinning Robot");
     spin();
-  }
-  else if (ps2x.Button(PSB_R2))
-  {
+  } else if (ps2x.Button(PSB_R2)) {
     Serial.println("Opening Gripper");
     gripperOpen();
-  }
-  else if (ps2x.Button(PSB_L2))
-  {
+  } else if (ps2x.Button(PSB_L2)) {
     Serial.println("Closing Gripper");
     gripperClose();
   }

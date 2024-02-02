@@ -20,22 +20,22 @@ int direction;
 
 void autoControls()
 {
-  while (currentAutoState != IDLE)
+  while (currentAutoState != 2)
   {
     switch (currentAutoState)
     {
-      case GO:
-        currentAutoState = LINEFOLLOW;
+      case 0:
+        currentAutoState = 1;
         previousEvent = millis();
         break;
 
-      case LINEFOLLOW:
+      case 1:
         lineFollowMode();
         
-        if (ps2x.Button(PSB_START))
+        if (ps2x.Button(PSB_SELECT))
         {
-          currentState = MANUAL;
-          currentAutoState = IDLE;
+          currentState = 0;
+          currentAutoState = 2;
         }
         break;
 

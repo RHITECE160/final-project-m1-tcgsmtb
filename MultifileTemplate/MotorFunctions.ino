@@ -23,16 +23,17 @@ int gripperValue = 90;
 
 void forward() {
   enableMotor(BOTH_MOTORS);
-  setMotorDirection(LEFT_MOTOR, MOTOR_DIR_FORWARD);
-  setMotorDirection(RIGHT_MOTOR, MOTOR_DIR_FORWARD);
+  setMotorDirection(BOTH_MOTORS, MOTOR_DIR_BACKWARD);
+  // setMotorDirection(LEFT_MOTOR, MOTOR_DIR_BACKWARD);
+  // setMotorDirection(RIGHT_MOTOR, MOTOR_DIR_BACKWARD);
   setMotorSpeed(BOTH_MOTORS, fastSpeed);
 }
 
 //Move the robot backward
 void backward() {
   enableMotor(BOTH_MOTORS);
-  setMotorDirection(LEFT_MOTOR, MOTOR_DIR_BACKWARD);
-  setMotorDirection(RIGHT_MOTOR, MOTOR_DIR_BACKWARD);
+  setMotorDirection(LEFT_MOTOR, MOTOR_DIR_FORWARD);
+  setMotorDirection(RIGHT_MOTOR, MOTOR_DIR_FORWARD);
   setMotorSpeed(BOTH_MOTORS, fastSpeed);
 }
 

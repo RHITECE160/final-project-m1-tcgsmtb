@@ -11,6 +11,23 @@
   Version: 1.0
 */
 
+
+/*
+Pin Map:
+
+P1.7 - Playstation Brown Wire
+P1.6 - Playstation Orange Wire
+P2.3 - Playstation Yellow Wire
+P6.7 - Playstation Blue Wire
+
+P4.1 - IR Receiver 
+P3.0 - IR Receiver
+
+P4.4 - Ultrasonic 
+
+P5.1 - Photoresistor
+*/
+
 //Load used libraries
 #include "PS2X_lib.h"
 #include "SimpleRSLK.h"
@@ -31,7 +48,7 @@ IRData IRmsg;
 uint16_t IRaddress;  ///< Decoded address
 uint16_t IRcommand;  ///< Decoded command
 
-//Create and set IR distance sensor
+//Create and set Ultrasonic distance sensor
 #define distSens 26  //4.4
 
 //Define the Playstation controller pins
@@ -87,6 +104,7 @@ int stopDistance = 5;  //Determins how far from a wall the robot will stop
 4). Hit reset button - implement a wait button to prevent setup() from running before steps 1-3
 5). Hit the start button the Playstation controller
 */
+
 void setup() {
   //Initialize the serial monitor
   Serial.begin(57600);

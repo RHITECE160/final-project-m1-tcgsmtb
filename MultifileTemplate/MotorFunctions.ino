@@ -32,8 +32,8 @@ void forward() {
 //Move the robot backward
 void backward() {
   enableMotor(BOTH_MOTORS);
-  setMotorDirection(LEFT_MOTOR, MOTOR_DIR_FORWARD);
-  setMotorDirection(RIGHT_MOTOR, MOTOR_DIR_FORWARD);
+  setMotorDirection(BOTH_MOTOR, MOTOR_DIR_FORWARD);
+  // setMotorDirection(RIGHT_MOTOR, MOTOR_DIR_FORWARD);
   setMotorSpeed(BOTH_MOTORS, fastSpeed);
 }
 

@@ -48,8 +48,15 @@ IRData IRmsg;
 uint16_t IRaddress;  ///< Decoded address
 uint16_t IRcommand;  ///< Decoded command
 
+
+
 //Create and set Ultrasonic distance sensor
 #define distSens 26  //4.4
+
+//Setup ultrasonic 
+Ultrasonic ultrasonic(26);
+int distIN;
+int motorSpeed;
 
 //Define the Playstation controller pins
 #define PS2_DAT 14  //P1.7 <-> brown wire
@@ -81,18 +88,6 @@ int currentAutoState = 0;
 * 2 - Idle
 */
 
-//Create calibration variable
-bool isCalibrationComplete = false;
-
-//Create speed variables
-const uint16_t stopped = 0;
-const uint16_t normalSpeed = 10;
-const uint16_t fastSpeed = 20;
-
-//Create line-following variables
-const uint8_t lineColor = LIGHT_LINE;
-uint32_t linePos = getLinePosition();
-
 //Create remaining possibily-needed variables
 int stopDistance = 5;  //Determins how far from a wall the robot will stop
 
@@ -112,6 +107,8 @@ void setup() {
 
   //Initialize the RSLK code
   setupRSLK();
+
+  setupLed(RED_LED);
 
   //Check if IR is ready to transmit signals
   if (sendIR.initIRSender()) {
@@ -162,6 +159,18 @@ void setup() {
 void loop() {
   //Read Playstation controller input
   ps2x.read_gamepad();
+
+  distIn = readSharpDistIN(SensorPos);
+  if (distIN < 10)
+  {
+    stop();
+  }
+
+
+  if (isCalibrationComplete == false) {
+    floorCalibration();
+    isCalibrationComplete == true;
+  }
 
   //Perform respective state-machine state
   performStateMachine();

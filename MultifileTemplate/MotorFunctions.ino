@@ -12,8 +12,12 @@
   2. void stopMotor()
      - Stops the motor.
 
+  3. void gripperOpen() & void gripperClose()
+     - Opens/closes the gripper using the servo moter
+
   Created by: Matt Bonilla, Mitch Mabardy, andEvan O'Brien
   Date: 1/18/2024
+  Last Revised: 2/05/24
   Version: 1.0
 */
 
@@ -24,8 +28,6 @@ int gripperValue = 90;
 void forward() {
   enableMotor(BOTH_MOTORS);
   setMotorDirection(BOTH_MOTORS, MOTOR_DIR_BACKWARD);
-  // setMotorDirection(LEFT_MOTOR, MOTOR_DIR_BACKWARD);
-  // setMotorDirection(RIGHT_MOTOR, MOTOR_DIR_BACKWARD);
   setMotorSpeed(BOTH_MOTORS, fastSpeed);
 }
 
@@ -33,7 +35,6 @@ void forward() {
 void backward() {
   enableMotor(BOTH_MOTORS);
   setMotorDirection(BOTH_MOTORS, MOTOR_DIR_FORWARD);
-  // setMotorDirection(RIGHT_MOTOR, MOTOR_DIR_FORWARD);
   setMotorSpeed(BOTH_MOTORS, fastSpeed);
 }
 

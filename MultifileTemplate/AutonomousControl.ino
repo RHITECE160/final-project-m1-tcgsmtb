@@ -16,15 +16,10 @@
 void autoControls()
 {
   while (currentAutoState != 2)
-  {
+  { 
     switch (currentAutoState)
     {
       case 0:
-        currentAutoState = 1;
-        previousEvent = millis();
-        break;
-
-      case 1:
         lineFollowMode();
         
         if (ps2x.Button(PSB_SELECT))
@@ -32,6 +27,11 @@ void autoControls()
           currentState = 0;
           currentAutoState = 2;
         }
+        break;
+
+      case 1:
+        tunnelMode();
+        currentAutoState = 2;
         break;
 
       default:
@@ -45,13 +45,12 @@ void lineFollowMode()
   linePos = getLinePosition();
   direction = 0;
 
-<<<<<<< HEAD
-  if (position > 0 && position < 4000)
+  if (linePos > 0 && linePos < 4000)
   {
     setMotorSpeed(LEFT_MOTOR, normalSpeed);
     setMotorSpeed(RIGHT_MOTOR, fastSpeed);
   }
-  else if (position > 5000)
+  else if (linePos > 5000)
   {
    setMotorSpeed(LEFT_MOTOR, fastSpeed);
    setMotorSpeed(RIGHT_MOTOR, normalSpeed);
@@ -60,20 +59,6 @@ void lineFollowMode()
   {
     setMotorSpeed(BOTH_MOTORS, normalSpeed);
   }
-}
-
-
-=======
-  if ((linePos > 0) && (linePos < 4000)) {    // turn left
-        setMotorSpeed(LEFT_MOTOR, normalSpeed);
-        setMotorSpeed(RIGHT_MOTOR, fastSpeed);
-    } else if (linePos > 5000) {                // turn right
-        setMotorSpeed(LEFT_MOTOR, fastSpeed);
-        setMotorSpeed(RIGHT_MOTOR, normalSpeed);
-    } else {                                    // go straight
-        setMotorSpeed(LEFT_MOTOR, normalSpeed);
-        setMotorSpeed(RIGHT_MOTOR, normalSpeed);
-    }
 }
 
 void floorCalibration()
@@ -112,14 +97,14 @@ void floorCalibration()
 
 void distanceSensorMode() {
   if (isInTunnel){
-    distIn = Ultrasonic.read();
+    distIn = ultrasonic.read();
 
-    if (distIn > stopDistance) foward();
+    if (distIn > stopDistance) forward();
 
     else if (distIn <= stopDistance && distIn != 0) {
       turnLeft();
       delay(turnInTunnelTime);
-      foward();
+      forward();
     }
 
   }else {
@@ -129,8 +114,42 @@ void distanceSensorMode() {
 
 }
 
+void tunnelMode()
+{
+  while(isInTunnel)
+  {
+    distIn = ultrasonic.read();
+    switch (tunnelState)
+    {
+      case 0:
+        while (distIn > stopDistance) {
+        forward();
+        }
+        turnRight();
+        while (phoValue < 0) {
+          forward();
+        }
+        stop();
+        tunnelState = 1;
+        break;
+      case 1:
+      {
+        while (distIn > stopDistance) {
+          forward();
+        }
+        turnLeft();
+        while (phoValue < 0) {
+          forward();
+        } 
+        stop();
+        tunnelState = 0;
+      }
+      default:
+        break;
+    }
+  }
+}
 
 void dropOffBlock() {
 
 }
->>>>>>> fb67d742a4d29a8202eeae66a9bdd68e1cc94978

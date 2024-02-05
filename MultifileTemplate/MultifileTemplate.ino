@@ -39,7 +39,7 @@ P5.1 - Photoresistor
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
 #define IR_RCV_PIN 5   //P4.1
-#define IR_TRX_PIN 18 //P3.0
+#define IR_TRX_PIN 18 //P6.0
 
 //Create IR data structures
 IRreceiver irRX(IR_RCV_PIN);
@@ -53,10 +53,9 @@ uint16_t IRcommand;  ///< Decoded command
 
 //Create and set Ultrasonic distance sensor
 #define distSens 26  //4.4
-Ultrasonic ultrasonic(distSens);
+Ultrasonic ultrasonic(distSens, distSens);
 
 //Setup ultrasonic 
-Ultrasonic ultrasonic(26);
 int distIn;
 int turnInTunnelTime;
 int motorSpeed;
@@ -82,9 +81,8 @@ bool isInTunnel = false;
 int tunnelState = 0;
 //idk if this is the best way to do this 
 /* tunnelState
-* 0 - entering tunnel
-* 1 - turning in tunnel
-* 2 - leaving tunnel
+* 0 - entering tunnel from starting area
+* 1 - entering tunnel from cemetery area
 */
 
 int currentState = 0;
@@ -95,8 +93,8 @@ int currentState = 0;
 
 int currentAutoState = 0;
 /* currentAutoState
-* 0 - Go
-* 1 - LineFollow
+* 0 - LineFollow
+* 1 - Tunnel
 * 2 - Idle
 */
 
@@ -119,7 +117,9 @@ uint32_t linePos;
 int direction;
 const uint8_t lineColor = LIGHT_LINE;
 
-
+//Photoresistor
+#define photoRes 33 //P5.1
+int phoValue;
 
 /*
 1). Upload file(s)
@@ -137,12 +137,9 @@ void setup() {
   //Initialize the RSLK code
   setupRSLK();
 
-<<<<<<< HEAD
   // set pin mode for IR LED transmitter
   pinMode(2, OUTPUT);
-=======
   setupLed(RED_LED);
->>>>>>> fb67d742a4d29a8202eeae66a9bdd68e1cc94978
 
   //Check if IR is ready to transmit signals
   if (sendIR.initIRSender()) {
@@ -158,6 +155,7 @@ void setup() {
   IRmsg.command = IRcommand;
   IRmsg.address = IRaddress;
   IRmsg.isRepeat = false;
+
 
   //Check if IR is ready to receive signals
   if (irRX.initIRReceiver()) {
@@ -175,6 +173,9 @@ void setup() {
   myservo.attach(38);
   Serial.println("Servo Initialized");
 
+  //Photoresistor
+  phoValue = analogRead(photoRes);
+  Serial.println("Photoresistor Initialized");
 
   while (error) {
     error = ps2x.config_gamepad(PS2_CLK, PS2_CMD, PS2_SEL, PS2_DAT);
@@ -193,7 +194,14 @@ void setup() {
 void loop() {
   //Read Playstation controller input
   ps2x.read_gamepad();
+  phoValue = analogRead(photoRes);
+  Serial.println(phoValue);
 
+  if (phoValue < 150)
+  {
+    currentState = 1;
+    currentAutoState = 1;
+  }
   // distIn = ultrasonic.read();
   // if (distIn < 10)
   // {
@@ -208,17 +216,24 @@ void loop() {
 
   //Perform respective state-machine state
   performStateMachine();
-  if (ps2x.Button(PSB_L1))
-    votiveCandle();
-  if (ps2x.Button(PSB_R1))
+  if (ps2x.Button(PSB_L1)) {
+    Serial.println("Lighting Gold Votive");
+    goldVotiveCandle();
+  } else if (ps2x.Button(PSB_R1)) {
+    Serial.println("Lighting Catrina Candle");
     catrinaCandle();
+  } else if (ps2x.Button(PSB_R3)) {
+    blackVotiveCandleOn();
+  } else if (ps2x.Button(PSB_L3)) {
+    blackVotiveCandleOff();
+  }
 }
 
 //Switches and performs the actions of the state machine
 void performStateMachine() {
   switch (currentState) {
     case 0:
-      Serial.println("Entering Manual Mode");
+      //Serial.println("Entering Manual Mode");
       playStationControls();
       if (ps2x.Button(PSB_SELECT)) {
         Serial.println(" from current state = 0 ->Select button pushed");
@@ -265,11 +280,13 @@ void playStationControls() {
   {
     Serial.println("Spinning Robot");
     spin();
-  } else if (ps2x.Button(PSB_R2)) {
+  } else if (ps2x.Button(PSB_R2)) 
+  {
     Serial.println("Opening Gripper");
     gripperOpen();
-  } else if (ps2x.Button(PSB_L2)) {
+  } else if (ps2x.Button(PSB_L2)) 
+  {
     Serial.println("Closing Gripper");
     gripperClose();
-  }
+  } 
 }

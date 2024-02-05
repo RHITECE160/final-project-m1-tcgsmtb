@@ -33,12 +33,13 @@ P5.1 - Photoresistor
 #include "SimpleRSLK.h"
 #include <Servo.h>
 #include <TinyIRremote.h>
+#include <Ultrasonic.h>
 
 //Define the IR pins
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
 #define IR_RCV_PIN 5   //P4.1
-#define IR_TRX_PIN 18  //P3.0
+#define IR_TRX_PIN 18 //P3.0
 
 //Create IR data structures
 IRreceiver irRX(IR_RCV_PIN);
@@ -50,6 +51,7 @@ uint16_t IRcommand;  ///< Decoded command
 
 //Create and set Ultrasonic distance sensor
 #define distSens 26  //4.4
+Ultrasonic ultrasonic(distSens);
 
 //Define the Playstation controller pins
 #define PS2_DAT 14  //P1.7 <-> brown wire
@@ -112,6 +114,9 @@ void setup() {
 
   //Initialize the RSLK code
   setupRSLK();
+
+  // set pin mode for IR LED transmitter
+  pinMode(2, OUTPUT);
 
   //Check if IR is ready to transmit signals
   if (sendIR.initIRSender()) {

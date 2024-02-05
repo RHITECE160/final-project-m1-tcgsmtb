@@ -50,37 +50,20 @@ void lineFollowMode()
   position = getLinePosition();
   direction = 0;
 
-  if (position > 3600 && position < 4475)
+  if (position > 0 && position < 4000)
   {
-    enableMotor(BOTH_MOTORS);
-    setMotorDirection(BOTH_MOTORS, MOTOR_DIR_FORWARD);
-    setMotorSpeed(LEFT_MOTOR, 5);
-    setMotorSpeed(RIGHT_MOTOR, 7);
+    setMotorSpeed(LEFT_MOTOR, normalSpeed);
+    setMotorSpeed(RIGHT_MOTOR, fastSpeed);
   }
-  else if (position > 4525 && position < 5400)
+  else if (position > 5000)
   {
-    enableMotor(BOTH_MOTORS);
-    setMotorDirection(BOTH_MOTORS, MOTOR_DIR_FORWARD);
-    setMotorSpeed(LEFT_MOTOR, 7);
-    setMotorSpeed(LEFT_MOTOR, 5);
-  }
-  else if (position < 3600)
-  {
-    setMotorSpeed(BOTH_MOTORS, 0);
-    delay(500);
-    enableMotor(LEFT_MOTOR);
-    setMotorDirection(LEFT_MOTOR, MOTOR_DIR_BACKWARD);
-    setMotorSpeed(BOTH_MOTORS, 8);
-  }
-  else if (position > 5400)
-  {
-    setMotorSpeed(BOTH_MOTORS, 0);
-    delay(500);
-    enableMotor(RIGHT_MOTOR);
-    setMotorDirection(RIGHT_MOTOR, MOTOR_DIR_BACKWARD);
-    setMotorSpeed(BOTH_MOTORS, 8);
+   setMotorSpeed(LEFT_MOTOR, fastSpeed);
+   setMotorSpeed(RIGHT_MOTOR, normalSpeed);
   }
   else
-    setMotorSpeed(BOTH_MOTORS, 7);
+  {
+    setMotorSpeed(BOTH_MOTORS, normalSpeed);
+  }
 }
+
 

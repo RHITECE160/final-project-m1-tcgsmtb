@@ -32,7 +32,7 @@ void forward() {
 //Move the robot backward
 void backward() {
   enableMotor(BOTH_MOTORS);
-  setMotorDirection(BOTH_MOTOR, MOTOR_DIR_FORWARD);
+  setMotorDirection(BOTH_MOTORS, MOTOR_DIR_FORWARD);
   // setMotorDirection(RIGHT_MOTOR, MOTOR_DIR_FORWARD);
   setMotorSpeed(BOTH_MOTORS, fastSpeed);
 }
@@ -95,12 +95,21 @@ void votiveCandle()
 {
   //
   if (irRX.decodeIR(&IRresults) && IRresults.command == 160) //Gold Votive Candle
-    IRcommand = 0x61;
-  else IRcommand = 0xA0; //Regular Votive Candle
+  {
+    IRmsg.address = 0xEE;
+    IRmsg.command = 0x61;
+    sendIR.write(&IRmsg);
+    delay(500);
+  } 
 
   //Send IR data
-  IRmsg.address = 0xEE;
-  IRmsg.command = IRcommand;
-  sendIR.write(&IRmsg);
-  delay(500);
+  // IRmsg.address = 0xEE;
+  // IRmsg.command = 0xA0;
+  // sendIR.write(&IRmsg);
+  // delay(500);
+  Serial.println("sending IR signal");
+  digitalWrite(2, HIGH);
+  delay(1000);
+  digitalWrite(2, LOW);
+  Serial.println("turning off IR signal");
 }

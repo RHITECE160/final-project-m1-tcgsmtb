@@ -21,7 +21,7 @@ P2.3 - Playstation Yellow Wire
 P6.7 - Playstation Blue Wire
 
 P4.1 - IR Receiver 
-P3.0 - IR Receiver
+P3.0 - IR Transmitter
 
 P4.4 - Ultrasonic 
 
@@ -49,9 +49,17 @@ IRData IRmsg;
 uint16_t IRaddress;  ///< Decoded address
 uint16_t IRcommand;  ///< Decoded command
 
+
+
 //Create and set Ultrasonic distance sensor
 #define distSens 26  //4.4
 Ultrasonic ultrasonic(distSens);
+
+//Setup ultrasonic 
+Ultrasonic ultrasonic(26);
+int distIn;
+int turnInTunnelTime;
+int motorSpeed;
 
 //Define the Playstation controller pins
 #define PS2_DAT 14  //P1.7 <-> brown wire
@@ -69,6 +77,15 @@ int error = 1;
 Servo myservo;  // create Servo Class
 
 //Create the options for Manual-Autonomous states
+bool isInTunnel = false;
+
+int tunnelState = 0;
+//idk if this is the best way to do this 
+/* tunnelState
+* 0 - entering tunnel
+* 1 - turning in tunnel
+* 2 - leaving tunnel
+*/
 
 int currentState = 0;
 /* currentState
@@ -83,6 +100,12 @@ int currentAutoState = 0;
 * 2 - Idle
 */
 
+//Create remaining possibily-needed variables
+int stopDistance = 5;  //Determins how far from a wall the robot will stop
+
+//Logs the time of the previous autonomous event
+unsigned long previousEvent;
+
 //Create calibration variable
 bool isCalibrationComplete = false;
 
@@ -91,12 +114,11 @@ const uint16_t stopped = 0;
 const uint16_t normalSpeed = 10;
 const uint16_t fastSpeed = 20;
 
-//Create line-following variables
+//Used for the storage of line following data
+uint32_t linePos; 
+int direction;
 const uint8_t lineColor = LIGHT_LINE;
-uint32_t linePos = getLinePosition();
 
-//Create remaining possibily-needed variables
-int stopDistance = 5;  //Determins how far from a wall the robot will stop
 
 
 /*
@@ -115,8 +137,12 @@ void setup() {
   //Initialize the RSLK code
   setupRSLK();
 
+<<<<<<< HEAD
   // set pin mode for IR LED transmitter
   pinMode(2, OUTPUT);
+=======
+  setupLed(RED_LED);
+>>>>>>> fb67d742a4d29a8202eeae66a9bdd68e1cc94978
 
   //Check if IR is ready to transmit signals
   if (sendIR.initIRSender()) {
@@ -167,6 +193,18 @@ void setup() {
 void loop() {
   //Read Playstation controller input
   ps2x.read_gamepad();
+
+  // distIn = ultrasonic.read();
+  // if (distIn < 10)
+  // {
+  //   stop();
+  // }
+
+
+  // if (isCalibrationComplete == false) {
+  //   floorCalibration();
+  //   isCalibrationComplete == true;
+  // }
 
   //Perform respective state-machine state
   performStateMachine();

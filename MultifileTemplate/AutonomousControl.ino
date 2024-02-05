@@ -11,12 +11,7 @@
 */
 
 
-//Logs the time of the previous autonomous event
-unsigned long previousEvent;
 
-//Used for the storage of line following data
-uint32_t position; 
-int direction;
 
 void autoControls()
 {
@@ -47,9 +42,10 @@ void autoControls()
 
 void lineFollowMode()
 {
-  position = getLinePosition();
+  linePos = getLinePosition();
   direction = 0;
 
+<<<<<<< HEAD
   if (position > 0 && position < 4000)
   {
     setMotorSpeed(LEFT_MOTOR, normalSpeed);
@@ -67,3 +63,74 @@ void lineFollowMode()
 }
 
 
+=======
+  if ((linePos > 0) && (linePos < 4000)) {    // turn left
+        setMotorSpeed(LEFT_MOTOR, normalSpeed);
+        setMotorSpeed(RIGHT_MOTOR, fastSpeed);
+    } else if (linePos > 5000) {                // turn right
+        setMotorSpeed(LEFT_MOTOR, fastSpeed);
+        setMotorSpeed(RIGHT_MOTOR, normalSpeed);
+    } else {                                    // go straight
+        setMotorSpeed(LEFT_MOTOR, normalSpeed);
+        setMotorSpeed(RIGHT_MOTOR, normalSpeed);
+    }
+}
+
+void floorCalibration()
+{
+    /* Place Robot On Floor (no line) */
+    delay(2000);
+    Serial.println("Push left button on Launchpad to begin calibration.");
+    Serial.println("Make sure the robot is on the floor away from the line.\n");
+
+    delay(500);
+    Serial.println("Running calibration on floor");
+
+    /* Set both motors direction forward */
+    setMotorDirection(BOTH_MOTORS, MOTOR_DIR_FORWARD);
+    /* Enable both motors */
+    enableMotor(BOTH_MOTORS);
+    /* Set both motors speed 20 */
+    setMotorSpeed(BOTH_MOTORS, 20);
+
+    /* Must be called prior to using getLinePosition() or readCalLineSensor() */
+    calibrateLineSensor(lineColor);
+
+    /* Disable both motors */
+    disableMotor(BOTH_MOTORS);
+
+    Serial.println("Reading floor values complete");
+
+    Serial.println("Push left button on Launchpad to begin line following.");
+    Serial.println("Make sure the robot is on the line.\n");
+    /* Wait until button is pressed to start robot */
+    waitBtnPressed(LP_LEFT_BTN, RED_LED);
+    delay(1000);
+
+    enableMotor(BOTH_MOTORS);
+}
+
+void distanceSensorMode() {
+  if (isInTunnel){
+    distIn = Ultrasonic.read();
+
+    if (distIn > stopDistance) foward();
+
+    else if (distIn <= stopDistance && distIn != 0) {
+      turnLeft();
+      delay(turnInTunnelTime);
+      foward();
+    }
+
+  }else {
+    
+
+  }
+
+}
+
+
+void dropOffBlock() {
+
+}
+>>>>>>> fb67d742a4d29a8202eeae66a9bdd68e1cc94978

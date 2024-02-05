@@ -90,3 +90,27 @@ void floorCalibration()
 
     enableMotor(BOTH_MOTORS);
 }
+
+void distanceSensorMode() {
+  if (isInTunnel){
+    distIn = Ultrasonic.read();
+
+    if (distIn > stopDistance) foward();
+
+    else if (distIn <= stopDistance && distIn != 0) {
+      turnLeft();
+      delay(turnInTunnelTime);
+      foward();
+    }
+
+  }else {
+    
+
+  }
+
+}
+
+
+void dropOffBlock() {
+
+}

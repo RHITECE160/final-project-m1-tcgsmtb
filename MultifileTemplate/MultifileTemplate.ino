@@ -57,6 +57,7 @@ uint16_t IRcommand;  ///< Decoded command
 //Setup ultrasonic 
 Ultrasonic ultrasonic(26);
 int distIn;
+int turnInTunnelTime;
 int motorSpeed;
 
 //Define the Playstation controller pins
@@ -75,6 +76,15 @@ int error = 1;
 Servo myservo;  // create Servo Class
 
 //Create the options for Manual-Autonomous states
+bool isInTunnel = false;
+
+int tunnelState = 0;
+//idk if this is the best way to do this 
+/* tunnelState
+* 0 - entering tunnel
+* 1 - turning in tunnel
+* 2 - leaving tunnel
+*/
 
 int currentState = 0;
 /* currentState
@@ -107,6 +117,8 @@ const uint16_t fastSpeed = 20;
 uint32_t linePos; 
 int direction;
 const uint8_t lineColor = LIGHT_LINE;
+
+
 
 /*
 1). Upload file(s)

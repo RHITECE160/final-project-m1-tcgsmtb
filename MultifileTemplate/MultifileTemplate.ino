@@ -195,13 +195,16 @@ void loop() {
   //Read Playstation controller input
   ps2x.read_gamepad();
   phoValue = analogRead(photoRes);
-  Serial.println(phoValue);
+  //Serial.println(phoValue);
 
-  if (phoValue < 150)
-  {
-    currentState = 1;
-    currentAutoState = 1;
-  }
+  linePos = getLinePosition();
+  //Serial.println((linePos - 4000));
+
+  // if (phoValue < 150)
+  // {
+  //   currentState = 1;
+  //   currentAutoState = 1;
+  // }
   // distIn = ultrasonic.read();
   // if (distIn < 10)
   // {
@@ -249,7 +252,7 @@ void performStateMachine() {
       break;
 
     default:
-      currentState = 1;
+      currentState = 0;
       break;
   }
 }

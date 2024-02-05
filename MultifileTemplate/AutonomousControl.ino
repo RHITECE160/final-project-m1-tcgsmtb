@@ -20,7 +20,9 @@ void autoControls()
     switch (currentAutoState)
     {
       case 0:
+        Serial.println("Entering Line Following Mode");
         lineFollowMode();
+        
         
         if (ps2x.Button(PSB_SELECT))
         {
@@ -31,6 +33,7 @@ void autoControls()
 
       case 1:
         tunnelMode();
+        currentState = 0;
         currentAutoState = 2;
         break;
 
@@ -44,20 +47,19 @@ void lineFollowMode()
 {
   linePos = getLinePosition();
   direction = 0;
+  enableMotor(BOTH_MOTORS);
 
-  if (linePos > 0 && linePos < 4000)
+  if (linePos - 4000 > 300 && linePos - 4000 < 1000)
   {
-    setMotorSpeed(LEFT_MOTOR, normalSpeed);
-    setMotorSpeed(RIGHT_MOTOR, fastSpeed);
+    forward();
   }
-  else if (linePos > 5000)
+  else if (linePos - 4000 > 1000)
   {
-   setMotorSpeed(LEFT_MOTOR, fastSpeed);
-   setMotorSpeed(RIGHT_MOTOR, normalSpeed);
+   turnLeft();
   }
-  else
+  else if (linePos - 4000 < 300)
   {
-    setMotorSpeed(BOTH_MOTORS, normalSpeed);
+    turnRight();
   }
 }
 

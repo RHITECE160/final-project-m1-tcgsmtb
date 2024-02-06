@@ -82,32 +82,36 @@ void gripperClose()
 void catrinaCandle()
 {
   //If command available, receive the command
-  IRcommand = IRresults.command;
+  //if (irRX.decodeIR(&IRresults))
+    IRcommand = IRresults.command;
 
   //Send IR data
   IRmsg.address = 0xCE;
   IRmsg.command = IRcommand;
+  Serial.println(IRcommand);
   sendIR.write(&IRmsg);
-  delay(500);
 }
+
 
 void goldVotiveCandle()
 {
+
+
   //Send IR data
   IRmsg.address = 0xEE;
-  IRmsg.command = 0x61;
+  IRmsg.command = 160;
   sendIR.write(&IRmsg);
-  delay(500);
 }
+
 
 void blackVotiveCandleOn()
 {
   Serial.println("sending IR signal");
-  digitalWrite(2, HIGH);
+  digitalWrite(ledPin, HIGH);
 }
 
 void blackVotiveCandleOff()
 {
-  digitalWrite(2, LOW);
+  digitalWrite(ledPin, LOW);
   Serial.println("turning off IR signal");
 }

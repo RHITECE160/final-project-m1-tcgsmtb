@@ -41,6 +41,7 @@ P5.1 - Photoresistor
 #define STR(x) STR_HELPER(x)
 #define IR_RCV_PIN 5   //P4.1
 #define IR_TRX_PIN 18 //P6.0
+#define ledPin 2
 
 //Create IR data structures
 IRreceiver irRX(IR_RCV_PIN);
@@ -49,12 +50,13 @@ IRData IRresults;
 IRData IRmsg;
 uint16_t IRaddress;  ///< Decoded address
 uint16_t IRcommand;  ///< Decoded command
+volatile bool justWritten = false;
 
 
 
 //Create and set Ultrasonic distance sensor
 #define distSens 26  //4.4
-Ultrasonic ultrasonic(distSens, distSens);
+Ultrasonic ultrasonic(distSens);
 
 //Setup ultrasonic 
 int distIn;
@@ -100,7 +102,7 @@ int currentAutoState = 0;
 */
 
 //Create remaining possibily-needed variables
-int stopDistance = 5;  //Determins how far from a wall the robot will stop
+int stopDistance = 10;  //Determins how far from a wall the robot will stop
 
 //Logs the time of the previous autonomous event
 unsigned long previousEvent;
@@ -131,6 +133,10 @@ int phoValue;
 */
 
 void setup() {
+
+  // set pin mode for IR LED transmitter
+  pinMode(ledPin, OUTPUT);
+
   //Initialize the serial monitor
   Serial.begin(57600);
   Serial.println("Initializing Serial Monitor!");
@@ -138,9 +144,7 @@ void setup() {
   //Initialize the RSLK code
   setupRSLK();
 
-  // set pin mode for IR LED transmitter
-  pinMode(2, OUTPUT);
-  setupLed(RED_LED);
+
 
   //Check if IR is ready to transmit signals
   if (sendIR.initIRSender()) {
@@ -150,22 +154,20 @@ void setup() {
     while (1) { ; }
   }
 
-  delay(500);
-  enableTXLEDFeedback(GREEN_LED);
-  IRmsg.protocol = NEC;
-  IRmsg.command = IRcommand;
-  IRmsg.address = IRaddress;
-  IRmsg.isRepeat = false;
-
-
   //Check if IR is ready to receive signals
-  if (irRX.initIRReceiver()) {
+  if (irRX.initIRReceiver(true, true, handleReceivedTinyIRData)) {
     Serial.println(F("Ready to Receiver NEC IR signals on pin " STR(IR_RCV_PIN)));
   } else {
     Serial.println("Initialization of IR receiver Failed.");
     while (1) { ; }
   }
   Serial.println("IR transmittion and receiver completed");
+
+  delay(500);
+  IRmsg.protocol = NEC;
+  IRmsg.command = IRcommand;
+  IRmsg.address = IRaddress;
+  IRmsg.isRepeat = false;
 
   delay(500);
   //enableRXLEDFeedback(BLUE_LED);
@@ -181,7 +183,7 @@ void setup() {
   while (error) {
     error = ps2x.config_gamepad(PS2_CLK, PS2_CMD, PS2_SEL, PS2_DAT);
     if (error == 0)
-      Serial.print("Found Controller, configured successful ");
+      Serial.println("Found Controller, configured successful ");
     else if (error == 1)
       Serial.println("No controller found, check wiring, see readme.txt to enable debug. visit www.billporter.info for troubleshooting tips");
     else if (error == 2)
@@ -212,48 +214,51 @@ void loop() {
   //   stop();
   // }
 
-
+  //Calibrate 
   // if (isCalibrationComplete == false) {
   //   floorCalibration();
   //   isCalibrationComplete == true;
   // }
 
   //Perform respective state-machine state
-  performStateMachine();
-  if (ps2x.Button(PSB_L1)) {
-    Serial.println("Lighting Gold Votive");
-    goldVotiveCandle();
-  } else if (ps2x.Button(PSB_R1)) {
-    Serial.println("Lighting Catrina Candle");
-    catrinaCandle();
-  } else if (ps2x.Button(PSB_R3)) {
-    blackVotiveCandleOn();
-  } else if (ps2x.Button(PSB_L3)) {
-    blackVotiveCandleOff();
-  }
+  improvedStateMachine();
+  
 }
 
-//Switches and performs the actions of the state machine
-void performStateMachine() {
-  switch (currentState) {
-    case 0:
-      //Serial.println("Entering Manual Mode");
+
+void improvedStateMachine()
+{
+  switch (currentState)
+  {
+    case 0: //Manual Mode
+      Serial.println("Entering Manual Mode");
+
       playStationControls();
-      if (ps2x.Button(PSB_SELECT)) {
-        Serial.println(" from current state = 0 ->Select button pushed");
+
+      if (ps2x.Button(PSB_SQUARE))
+      {
+        Serial.println("Pressed Square Button in Manual Mode, changing to Tunnel Drive Mode");
         currentState = 1;
+        currentAutoState = 2;
       }
       break;
 
-    case 1:
-      Serial.println("Entering Autonomous Mode");
-      autoControls();
-      if (ps2x.Button(PSB_SELECT))
-        currentState = 0;
+    case 1: //Autonomous Mode
+      Serial.print("Entering Tunnel Drive Mode: ");
+      // currentAutoState = 0; //Change autonomous state to Line Following 
+      Serial.println(ultrasonic.read());
+      tunnelMode();
+
+      // while (!(ps2x.Button(PSB_START))) //Has autonomous controls until start is pressed
+      // {
+      //   improvedAutoControls();
+      // } //End while-loop
+
+      // Serial.println("Pressed Select Button in Autonomous Mode"); //If start pressed, will exit the while-loop
+      // currentState = 0; //Change standard state to Manual Mode
       break;
 
     default:
-      currentState = 0;
       break;
   }
 }
@@ -284,13 +289,42 @@ void playStationControls() {
   {
     Serial.println("Spinning Robot");
     spin();
-  } else if (ps2x.Button(PSB_R2)) 
+  } else if (ps2x.Button(PSB_R2)) //Opens the robot's gripper
   {
     Serial.println("Opening Gripper");
     gripperOpen();
-  } else if (ps2x.Button(PSB_L2)) 
+  } else if (ps2x.Button(PSB_L2)) //Closes the robot's gripper
   {
     Serial.println("Closing Gripper");
     gripperClose();
-  } 
+  } else if (ps2x.Button(PSB_L1)) //Activates the Gold Votive Candle
+  {
+    Serial.println("Lighting Gold Votive");
+    goldVotiveCandle();
+  } else if (ps2x.Button(PSB_R1)) //Activates the Catrina Candle
+  {
+    Serial.println("Lighting Catrina Candle");
+    catrinaCandle();
+  } else if (ps2x.Button(PSB_R3)) //Turns on the Black Votive Candle
+  {
+    Serial.println("Turning on Black Votive");
+    blackVotiveCandleOn();
+  } else if (ps2x.Button(PSB_L3)) //Turn off the Black Votive Candle
+  {
+    Serial.println("Turning off Black Votive");
+    blackVotiveCandleOff();
+  }
+  delay(10);
+}
+
+void handleReceivedTinyIRData(uint16_t aAddress, uint8_t aCommand, bool isRepeat) {
+    /*
+     * Since we are in an interrupt context and do not want to miss the next interrupts 
+     *  of the repeats coming soon, quickly save data and return to main loop
+     */
+    IRresults.address = aAddress;
+    IRresults.command = aCommand;
+    IRresults.isRepeat = isRepeat;
+    // Let main function know that new data is available
+    justWritten = true;
 }

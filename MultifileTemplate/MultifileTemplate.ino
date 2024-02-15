@@ -1,5 +1,5 @@
 /*
-  AutonomousControl.ino - File that controls the robot autonomously
+  MultifileTemplate.ino - File that controls the robot autonomously
   
   Description: 
   This sketch is the central frame of the robot's behavior
@@ -8,7 +8,7 @@
 
   Created by: Matt Bonilla, Mitch Mabardy, and Evan O'Brien 
   Date: 1/18/2024
-  Last Revised: 2/05/24
+  Last Revised: 2/08/24
   Version: 1.0
 */
 
@@ -203,22 +203,22 @@ void loop() {
   linePos = getLinePosition();
   //Serial.println((linePos - 4000));
 
-  // if (phoValue < 150)
-  // {
-  //   currentState = 1;
-  //   currentAutoState = 1;
-  // }
-  // distIn = ultrasonic.read();
-  // if (distIn < 10)
-  // {
-  //   stop();
-  // }
+  if (phoValue < 150)
+  {
+    currentState = 1;
+    currentAutoState = 1;
+  }
+  distIn = ultrasonic.read();
+  if (distIn < 10)
+  {
+    stop();
+  }
 
   //Calibrate 
-  // if (isCalibrationComplete == false) {
-  //   floorCalibration();
-  //   isCalibrationComplete == true;
-  // }
+  if (isCalibrationComplete == false) {
+    floorCalibration();
+    isCalibrationComplete == true;
+  }
 
   //Perform respective state-machine state
   improvedStateMachine();

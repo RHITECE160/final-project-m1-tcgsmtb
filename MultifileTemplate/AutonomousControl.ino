@@ -7,7 +7,7 @@
 
   Created by: Matt Bonilla, Mitch Mabardy, and Evan O'Brien
   Date: 1/18/2024
-  Last Revised: 2/05/24
+  Last Revised: 2/08/24
   Version: 1.0
 */
 
@@ -180,6 +180,7 @@ void tunnelMode()
 
   stop();
   turnRight(); //Turns right, supposedly is facing the cemetery now.
+  delay(1000);
 
   while (distIn > 40) //Moves forward until reaching the cemetery
   {
@@ -190,9 +191,9 @@ void tunnelMode()
   Serial.println("Exiting Tunnel");
 
   distIn = ultrasonic.read();
+  spin(); //will spin and leave marigold in the cemetery
+  delay(3000);
 
-  forward(); //Will back up and leave the marigold in the cemetery
-  spin();
 
   while (distIn > stopDistance) //Moves forward until hitting the corner of the tunnel
   {
@@ -206,6 +207,7 @@ void tunnelMode()
 
   stop();
   turnLeft(); //Turns left, supposedly is facing the cemetery now.
+  delay(1000);
 
   while (distIn < 40) //Moves forward until reaching the exit of the tunnel
   {

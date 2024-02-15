@@ -15,9 +15,9 @@
   3. void gripperOpen() & void gripperClose()
      - Opens/closes the gripper using the servo moter
 
-  Created by: Matt Bonilla, Mitch Mabardy, andEvan O'Brien
+  Created by: Matt Bonilla, Mitch Mabardy, and Evan O'Brien
   Date: 1/18/2024
-  Last Revised: 2/05/24
+  Last Revised: 2/08/24
   Version: 1.0
 */
 
@@ -82,7 +82,6 @@ void gripperClose()
 void catrinaCandle()
 {
   //If command available, receive the command
-  //if (irRX.decodeIR(&IRresults))
     IRcommand = IRresults.command;
 
   //Send IR data
